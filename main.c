@@ -27,6 +27,8 @@ Job** load_data_job(char* filename, int *totLines2);
 
 void** load_data();
 
+void add_new_employee();
+
 int main() {
     int chosenOption = 0;
     Employee **arrayEmployees;    /* Array of employees*/
@@ -37,20 +39,23 @@ int main() {
 
     chosenOption = display_menu();
     printf("you selected %d\n", chosenOption);
+
+    add_new_employee();
+
     arrayData=load_data();
 
     arrayEmployees=arrayData[1];
-
-    for (int i = 0; i < 3; i++) {
+/*
+    for (int i = 0; i < totLines; i++) {
         printf("\n[%d]: %d", (i + 1), arrayEmployees[i]->Number);
         printf("  %s", arrayEmployees[i]->firstName);
         printf(" %s", arrayEmployees[i]->lastName);
 
     }
-
+*/
     arrayJobs=arrayData[0];
-
-        for (int i = 0; i < 2; i++) {
+/*
+        for (int i = 0; i < totLines2; i++) {
         printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
         printf("%d",  arrayJobs[i]->jobNumber);
         printf("%s", arrayJobs[i]->customer);
@@ -58,7 +63,7 @@ int main() {
         printf(" %li", arrayJobs[i]->completedDate);
 
     }
-
+*/
         return 0;
     }
 
@@ -94,7 +99,7 @@ int main() {
 
     }
 
-// Function 2:  load_data
+// Function 2:  load_data + subfunctions
 void** load_data() {
 
     void **mypointer = NULL;
@@ -167,10 +172,6 @@ Employee** load_data_employee(char *filename, int *totLines) {
 
     }
 
-// testing function 2
-
-
-
 
 Job** load_data_job(char *filename, int *totLines2) {
 
@@ -238,6 +239,36 @@ Job** load_data_job(char *filename, int *totLines2) {
      * (one item per line). */
 }
 // Function 3:  add_new_employee
+void add_new_employee(){
+
+
+    int Number;//employee number
+    char firstName[260];//
+    char lastName[260];//
+
+    printf("Insert the employee ID :  "); // prompt to insert the input file name
+    scanf("%d",&Number);
+    printf("Insert the employee first name :  "); // prompt to insert the input file name
+    scanf("%s",&firstName);
+    printf("Insert the employee last name :  "); // prompt to insert the input file name
+    scanf("%s",&lastName);
+
+
+    FILE *f = fopen("employeeFile.txt", "ab");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+/* print some text */
+
+    fprintf(f, "%d %s %s", Number, firstName,lastName);
+    fprintf(f,"\r\n");
+}
+
+
+
 
 // Function 4:  add_new_job
 
