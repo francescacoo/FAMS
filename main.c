@@ -27,7 +27,7 @@ Job** load_data_job(char* filename, int *totLines2);
 
 void** load_data(int *totLines3,int *totLines4);
 
-void add_new_employee(Employee **arrayEmployees );
+void add_new_employee(Employee **arrayEmployees, int *totLines );
 void add_new_job(Job **arrayJobs );
 void view_employee(Employee **arrayEmployees, int *totLines );
 
@@ -49,7 +49,7 @@ int main() {
     printf("you selected %d\n", chosenOption);
     switch(chosenOption){
         case 1:
-            add_new_employee(arrayEmployees );
+            add_new_employee(arrayEmployees, &totLines3 );
             break;
         case 2:
             add_new_job(arrayJobs);
@@ -280,22 +280,50 @@ Job** load_data_job(char *filename, int *totLines2) {
      * (one item per line). */
 }
 // Function 3:  add_new_employee
-void add_new_employee(Employee **arrayEmployees ){
 
+/*When the user selects the “add new employee” menu item, prompt them for the data for the new employee.
+ * Append the new employee to the array of current
+ * employees and notify the user that the new record has been added successfully.
+ */
+void add_new_employee(Employee **arrayEmployees, int *totLines ){
+
+    Employee** NewArray=NULL;
+
+    int newtot=*totLines+1;
+    arrayEmployees=realloc(arrayEmployees,newtot* sizeof(Employee*));
 
     int Number;//employee number
-    char firstName[260];//
-    char lastName[260];//
+    char firstName[20];//
+    char lastName[20];//
 
     printf("Insert the employee ID :  "); // prompt to insert the input file name
     scanf("%d",&Number);
     printf("Insert the employee first name :  "); // prompt to insert the input file name
-    scanf("%s",&firstName);
+    scanf("%s",firstName);
     printf("Insert the employee last name :  "); // prompt to insert the input file name
-    scanf("%s",&lastName);
+    scanf("%s",lastName);
+
+    arrayEmployees[*totLines] = malloc(sizeof(Employee));
 
 
-    FILE *f = fopen("employeeFile.txt", "ab");
+    arrayEmployees[*totLines]->Number = Number;
+
+
+    arrayEmployees[*totLines]->firstName = calloc(strlen(firstName) + 1, sizeof(char));
+    strcpy(arrayEmployees[*totLines]->firstName, firstName);
+
+
+    arrayEmployees[*totLines]->lastName = calloc(strlen(lastName) + 1, sizeof(char));
+    strcpy(arrayEmployees[*totLines]->lastName, lastName);
+    *totLines=newtot;
+
+    for (int i = 0; i <= *totLines; i++) {
+        printf("\n[%d]: %d", (i + 1), arrayEmployees[i]->Number);
+        printf("  %s", arrayEmployees[i]->firstName);
+        printf(" %s", arrayEmployees[i]->lastName);
+
+    }
+ /*   FILE *f = fopen("employeeFile.txt", "ab");
     if (f == NULL)
     {
         printf("Error opening file!\n");
@@ -305,8 +333,8 @@ void add_new_employee(Employee **arrayEmployees ){
     fprintf(f, "%d %s %s", Number, firstName,lastName);
     fprintf(f,"\r\n");
 
+*/
 
-    // ADD IT TO THE ARRAY AS WELL
 }
 
 
@@ -351,7 +379,6 @@ void add_new_job(Job **arrayJobs) {
 void view_employee(Employee **arrayEmployees, int *totLines){
 
 
-    int tot = *totLines;
     for (int i = 0; i < *totLines; i++) {
         printf("\n[%d]: %d", (i + 1), arrayEmployees[i]->Number);
         printf("  %s", arrayEmployees[i]->firstName);
