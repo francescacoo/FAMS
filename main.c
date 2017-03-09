@@ -28,9 +28,9 @@ Job** load_data_job(char* filename, int *totLines2);
 void** load_data(int *totLines3,int *totLines4);
 
 void add_new_employee(Employee **arrayEmployees, int *totLines );
-void add_new_job(Job **arrayJobs );
+void add_new_job(Job **arrayJobs, int *totLines );
 void view_employee(Employee **arrayEmployees, int *totLines );
-
+void view_jobs(Job **arrayJobs, int *totLines );
 void exit_and_save(void** arrayData);
 
 
@@ -52,7 +52,7 @@ int main() {
             add_new_employee(arrayEmployees, &totLines3 );
             break;
         case 2:
-            add_new_job(arrayJobs);
+            add_new_job(arrayJobs, &totLines4);
             break;
         case 3:
             view_employee(arrayEmployees, &totLines3);
@@ -61,7 +61,7 @@ int main() {
   //          add_new_job();
             break;
         case 5:
-   //         add_new_job();
+            view_jobs(arrayJobs, &totLines4);
             break;
         case 6:
    //         add_new_job();
@@ -83,25 +83,8 @@ int main() {
 
 
 
- //   add_new_employee();
 
 
-
- //
-/*
-
-*/
- //
-/*
-        for (int i = 0; i < totLines2; i++) {
-        printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
-        printf("%d",  arrayJobs[i]->jobNumber);
-        printf("%s", arrayJobs[i]->customer);
-        printf(" %li", arrayJobs[i]->dueDate);
-        printf(" %li", arrayJobs[i]->completedDate);
-
-    }
-*/
         return 0;
     }
 
@@ -341,40 +324,132 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
 
 
 // Function 4:  add_new_job
-void add_new_job(Job **arrayJobs) {
+void add_new_job(Job **arrayJobs, int *totLines) {
 
         int EmployeeNumber;//employee number
         int jobNumber;
-        char *customer;
-        char *dateinserted;
+        char *customer[30];
+        int day;
+        int month;
+        int year;
+        int minute;
+        int hour;
         time_t dueDate;         //The job due date
         time_t completedDate;  //The job's actual completion date
+
+    int newtot=*totLines+1;
+    arrayJobs=realloc(arrayJobs,newtot* sizeof(Job*));
+
+    struct tm *current;
+    time_t timenow;
+    time(&timenow);
+    current = localtime(&timenow);
+    int currentmonth = current->tm_mon+1;
+    int currentday = current->tm_mday;
+    int currentyear = current->tm_year+1900;
+    int currenthour = current->tm_hour;
+    int currentminute = current->tm_min;
 
     printf("Insert the employee number :  "); // prompt to insert the input file name
     scanf("%d",&EmployeeNumber);
     printf("Insert the job number :  "); // prompt to insert the input file name
-    scanf("%d",&jobNumber);
+    scanf(" %d",&jobNumber);
     printf("Insert the customer :  "); // prompt to insert the input file name
     scanf("%s",&customer);
-    printf("Insert the due date in format dd/mm/yy :  "); // prompt to insert the input file name
-    scanf("%s",&dateinserted);
-    struct tm t;
- //   strptime(dateinserted, "%d-%m-%Y", &t);
-    time_t t2 = mktime(&t);
+    puts("Insert the due date "); // prompt to insert the input file name
 
+    puts("Insert the year: "); // prompt to insert the input file name
+    scanf(" %d", &year);
 
-    FILE *f = fopen("jobFile.txt", "ab");
-    if (f == NULL)
-    {
-        printf("Error opening file!\n");
-        exit(1);
+    while(year<currentyear) {
+        puts("The year inserted is not valid. \nInsert the year "); // prompt to insert the input file name
+        scanf(" %d", &year);
     }
 
-    fprintf(f, "%d %d %s %li %li", EmployeeNumber, jobNumber,customer, t2, 1234567890);
-    fprintf(f,"\r\n");
+    puts("Insert the month "); // prompt to insert the month
+    scanf(" %d", &month);
+
+    while(month>12 || (month<currentmonth && year==currentyear)) {
+        puts("The month inserted is not valid. \nInsert the month "); // prompt to insert the input file name
+        scanf(" %d", &month);
+    }
+    int validDay = (month == 2 ?
+                       (year % 4 ? 28 : (year % 100 ? 29 : (year % 400 ? 28 : 29))) :
+                       ((month - 1) % 7 % 2 ? 30 : 31));
+
+    puts("Insert the day "); // prompt to insert the input file name
+    scanf(" %d", &day);
+
+    while(day>validDay || (month<currentmonth && month==currentmonth && year==currentyear)) {
+        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the input file name
+        scanf(" %d", &day);
+    }
+
+    puts("Insert the hour "); // prompt to insert the hour
+    scanf(" %d", &hour);
+
+    while(hour>23 || (hour<currenthour && day==currentday && month==currentmonth && year==currentyear)) {
+        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the input file name
+        scanf(" %d", &hour);
+    }
+    puts("Insert the minute "); // prompt to insert the day
+    scanf(" %d", &minute);
+
+    while(minute>59 || (minute<currentminute && hour==currenthour && day==currentday && month==currentmonth && year==currentyear)) {
+        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the day
+        scanf(" %d", &minute);
+    }
+
+
+    struct tm newTimeS;
+    newTimeS.tm_year = year - 1900;
+    newTimeS.tm_mon = month - 1; //April
+    newTimeS.tm_mday = day;
+    newTimeS.tm_hour = hour;
+    newTimeS.tm_min = minute;
+
+    newTimeS.tm_isdst = -1;
+    newTimeS.tm_sec = 0;
+    newTimeS.tm_wday = -1;
+    newTimeS.tm_yday = -1;
+
+    dueDate = mktime(&newTimeS);
+
+
+
+
+    // ARRAY
+
+    arrayJobs[*totLines] = malloc(sizeof(Job));
+
+
+    arrayJobs[*totLines]->EmployeeNumber = EmployeeNumber;
+    arrayJobs[*totLines]->jobNumber = jobNumber;
+
+    arrayJobs[*totLines]->customer = calloc(strlen(customer) + 1, sizeof(char));
+    strcpy(arrayJobs[*totLines]->customer, customer);
+
+    arrayJobs[*totLines]->dueDate = dueDate;
+
+
+    for (int i = 0; i <= *totLines; i++) {
+        printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
+        printf(" %d", arrayJobs[i]->jobNumber);
+        printf(" %s", arrayJobs[i]->customer);
+        printf(" %li", arrayJobs[i]->dueDate);
+
+        time_t dueDateString= arrayJobs[i]->dueDate;
+        //    time(&dueDateString);
+
+        time_t completedDateString= arrayJobs[i]->completedDate;
+        //     time(&completedDateString);
+        printf(" %s", ctime(&dueDateString));
+        printf(" %s", ctime(&completedDateString));
+    }
+
 
 }
-// Function 5:  view_employee
+// Function 5:  view_employees
 
 void view_employee(Employee **arrayEmployees, int *totLines){
 
@@ -388,9 +463,28 @@ void view_employee(Employee **arrayEmployees, int *totLines){
 
 }
 
+
 // Function 6: sort_employee
 
 // Function 7:  view_job_information_time_due
+
+void view_jobs(Job **arrayJobs, int *totLines){
+
+    for (int i = 0; i < *totLines; i++) {
+        printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
+        printf(" %d", arrayJobs[i]->jobNumber);
+        printf(" %s", arrayJobs[i]->customer);
+        printf(" %li", arrayJobs[i]->dueDate);
+
+        time_t dueDateString= arrayJobs[i]->dueDate;
+        //    time(&dueDateString);
+
+        time_t completedDateString= arrayJobs[i]->completedDate;
+        //     time(&completedDateString);
+        printf(" %s", ctime(&dueDateString));
+        printf(" %s", ctime(&completedDateString));
+    }
+}
 
 // Function 8: sort_job_information_by_customer
 
