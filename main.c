@@ -28,10 +28,13 @@ Job** load_data_job(char* filename, int *totLines2);
 void** load_data(int *totLines3,int *totLines4);
 
 void add_new_employee(Employee **arrayEmployees, int *totLines );
-void add_new_job(Job **arrayJobs, int *totLines );
+void add_new_job(Job **arrayJobs, int *totLines2 );
 void view_employee(Employee **arrayEmployees, int *totLines );
-void view_jobs(Job **arrayJobs, int *totLines );
-void exit_and_save(void** arrayData);
+void view_jobs(Job **arrayJobs, int *totLines2 );
+void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *totLines2 );
+
+void sort_employee(Employee **arrayEmployees, int *totLines );
+void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 );
 
 
 int main() {
@@ -42,44 +45,52 @@ int main() {
     int totLines3;         /* Total number of read lines */
     int totLines4;         /* Total number of read lines */
 
-    chosenOption = display_menu();
     arrayData=load_data(&totLines3,&totLines4);
     arrayEmployees=arrayData[1];
     arrayJobs=arrayData[0];
-    printf("you selected %d\n", chosenOption);
-    switch(chosenOption){
-        case 1:
-            add_new_employee(arrayEmployees, &totLines3 );
-            break;
-        case 2:
-            add_new_job(arrayJobs, &totLines4);
-            break;
-        case 3:
-            view_employee(arrayEmployees, &totLines3);
-            break;
-        case 4:
-  //          add_new_job();
-            break;
-        case 5:
-            view_jobs(arrayJobs, &totLines4);
-            break;
-        case 6:
-   //         add_new_job();
-            break;
-        case 7:
-  //          add_new_job();
-            break;
-        case 8:
+
+    chosenOption = display_menu();
+
+
+    while (chosenOption!=10) {
+
+
+        switch(chosenOption){
+            case 1:
+                add_new_employee(arrayEmployees, &totLines3 );
+                break;
+            case 2:
+                add_new_job(arrayJobs, &totLines4);
+                break;
+            case 3:
+                view_employee(arrayEmployees, &totLines3);
+                break;
+            case 4:
+                //          add_new_job();
+                break;
+            case 5:
+                view_jobs(arrayJobs, &totLines4);
+                break;
+            case 6:
+                sort_employee(arrayEmployees, &totLines3);
+                break;
+            case 7:
+                //          add_new_job();
+                break;
+            case 8:
+
+                break;
+            case 9:
 //            add_new_job();
-            break;
-        case 9:
-//            add_new_job();
-            break;
-        case 10:
-//            exit_and_save();
-            break;
+                break;
+
+        }
+        chosenOption = display_menu();
     }
 
+    if(chosenOption==10){
+        save_data( arrayEmployees,  &totLines3,  arrayJobs,  &totLines4 );
+    }
 
 
 
@@ -89,11 +100,13 @@ int main() {
     }
 
 // Function 1:  display_menu
-    int display_menu() {
-        int chosenOption = 0;
+int display_menu() {
+    int chosenOption = 0;
+    puts("\n#################");
+    puts("###    Menu   ###");
+    puts("#################\n");
 
         while (chosenOption == 0) {
-
 
             puts("1. Add an Employee");
             puts("2. Add a job");
@@ -112,6 +125,9 @@ int main() {
                 chosenOption = 0;
             }
 
+            printf("you selected %d\n", chosenOption);
+
+
 
         }
 
@@ -120,11 +136,20 @@ int main() {
 
     }
 
-// Function 2:  load_data + subfunctions
+//
+/* Function 2:  load_data + subfunctions load_data_employee and  load_data_job
+ *
+ * This function is automatically called when the program is started.
+ * It reads employee and job information from files.
+ * If the files do not exist, notify the user, create the files and display the main menu.
+ * Once a file is open, data is read into an array of structs by
+ * dynamically creating sufficient memory for each entry read from the file.
+ */
+
 void** load_data(int *totLines3, int *totLines4) {
     *totLines3=0;
+    *totLines4=0;
     void **mypointer = NULL;
-//    Job **arrayJobs;    /* Array of jobs */
     int totLines;         /* Total number of read lines */
     int totLines2;         /* Total number of read lines */
     mypointer = calloc(2, sizeof(void*));
@@ -133,20 +158,19 @@ void** load_data(int *totLines3, int *totLines4) {
     *totLines3=totLines;
     *totLines4=totLines2;
     return mypointer;
-
-
 }
 
 
 Employee** load_data_employee(char *filename, int *totLines) {
 
 
-        printf("load data started");
+        puts("Employee load data started..");
         FILE *employeeFile; // Input file
 
-//if the file doesn’t exist:
+        //if the file doesn’t exist:
         while ((employeeFile = fopen(filename, "r")) == NULL) {
-            fprintf(stderr, "Error opening the file");
+            printf("The file doesn't exist. Creating it..");
+            employeeFile = fopen("employeeFile.txt", "wb");
         }
 
         Employee** array=NULL;
@@ -172,7 +196,7 @@ Employee** load_data_employee(char *filename, int *totLines) {
             // return NULL; /* Error */
         }
 
-        /* Read each line from file and deep-copy in the array. */
+        /* Read each line from file and copy in the array. */
         for (i = 0; i < line_count; i++) {
             array[i] = malloc(sizeof(Employee));
 
@@ -204,7 +228,8 @@ Job** load_data_job(char *filename, int *totLines2) {
 
 //if the file doesn’t exist:
     while ((jobFile = fopen(filename, "r")) == NULL) {
-        fprintf(stderr, "Error opening the file");
+        printf("The file doesn't exist. Creating it..");
+        jobFile = fopen("employeeFile.txt", "wb");
     }
 
     Job** array = NULL;
@@ -259,18 +284,16 @@ Job** load_data_job(char *filename, int *totLines2) {
     /* Return the array of lines */
     return array;
 
-    /* Allocate an array of pointers to strings
-     * (one item per line). */
 }
-// Function 3:  add_new_employee
 
-/*When the user selects the “add new employee” menu item, prompt them for the data for the new employee.
+
+/* Function 3:  add_new_employee
+ *
+ * When the user selects the “add new employee” menu item, prompt them for the data for the new employee.
  * Append the new employee to the array of current
  * employees and notify the user that the new record has been added successfully.
  */
 void add_new_employee(Employee **arrayEmployees, int *totLines ){
-
-    Employee** NewArray=NULL;
 
     int newtot=*totLines+1;
     arrayEmployees=realloc(arrayEmployees,newtot* sizeof(Employee*));
@@ -291,7 +314,6 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
 
     arrayEmployees[*totLines]->Number = Number;
 
-
     arrayEmployees[*totLines]->firstName = calloc(strlen(firstName) + 1, sizeof(char));
     strcpy(arrayEmployees[*totLines]->firstName, firstName);
 
@@ -300,31 +322,26 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
     strcpy(arrayEmployees[*totLines]->lastName, lastName);
     *totLines=newtot;
 
-    for (int i = 0; i <= *totLines; i++) {
-        printf("\n[%d]: %d", (i + 1), arrayEmployees[i]->Number);
-        printf("  %s", arrayEmployees[i]->firstName);
-        printf(" %s", arrayEmployees[i]->lastName);
+        printf("The new employee has been added:\n");
+        printf("\n[%d]: %d", (newtot), arrayEmployees[newtot-1]->Number);
+        printf("  %s", arrayEmployees[newtot-1]->firstName);
+        printf(" %s", arrayEmployees[newtot-1]->lastName);
 
-    }
- /*   FILE *f = fopen("employeeFile.txt", "ab");
-    if (f == NULL)
-    {
-        printf("Error opening file!\n");
-        exit(1);
-    }
-
-    fprintf(f, "%d %s %s", Number, firstName,lastName);
-    fprintf(f,"\r\n");
-
-*/
-
+    printf("\nPress [Enter] key to continue.\n");
+    while(getchar()!='\n'); // option TWO to clean stdin
+    getchar(); // wait for ENTER
 }
 
 
+/* Function 4:  add_new_job
+ *
+ * When the user selects the “add new job” menu item, prompt them for the new job information.
+ * Append the new job to the array of current jobs and notify the user that
+ * the new record has been added successfully.
+ */
 
 
-// Function 4:  add_new_job
-void add_new_job(Job **arrayJobs, int *totLines) {
+void add_new_job(Job **arrayJobs, int *totLines2) {
 
         int EmployeeNumber;//employee number
         int jobNumber;
@@ -337,7 +354,7 @@ void add_new_job(Job **arrayJobs, int *totLines) {
         time_t dueDate;         //The job due date
         time_t completedDate;  //The job's actual completion date
 
-    int newtot=*totLines+1;
+    int newtot=*totLines2+1;
     arrayJobs=realloc(arrayJobs,newtot* sizeof(Job*));
 
     struct tm *current;
@@ -415,41 +432,46 @@ void add_new_job(Job **arrayJobs, int *totLines) {
 
     dueDate = mktime(&newTimeS);
 
-
-
-
     // ARRAY
 
-    arrayJobs[*totLines] = malloc(sizeof(Job));
+    arrayJobs[*totLines2] = malloc(sizeof(Job));
 
 
-    arrayJobs[*totLines]->EmployeeNumber = EmployeeNumber;
-    arrayJobs[*totLines]->jobNumber = jobNumber;
+    arrayJobs[*totLines2]->EmployeeNumber = EmployeeNumber;
+    arrayJobs[*totLines2]->jobNumber = jobNumber;
 
-    arrayJobs[*totLines]->customer = calloc(strlen(customer) + 1, sizeof(char));
-    strcpy(arrayJobs[*totLines]->customer, customer);
+    arrayJobs[*totLines2]->customer = calloc(strlen(customer) + 1, sizeof(char));
+    strcpy(arrayJobs[*totLines2]->customer, customer);
 
-    arrayJobs[*totLines]->dueDate = dueDate;
+    arrayJobs[*totLines2]->dueDate = dueDate;
 
 
-    for (int i = 0; i <= *totLines; i++) {
-        printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
-        printf(" %d", arrayJobs[i]->jobNumber);
-        printf(" %s", arrayJobs[i]->customer);
-        printf(" %li", arrayJobs[i]->dueDate);
+        printf("\n[%d]: %d", (*totLines2 + 1), arrayJobs[*totLines2]->EmployeeNumber);
+        printf(" %d", arrayJobs[*totLines2]->jobNumber);
+        printf(" %s", arrayJobs[*totLines2]->customer);
 
-        time_t dueDateString= arrayJobs[i]->dueDate;
+        time_t dueDateString= arrayJobs[*totLines2]->dueDate;
         //    time(&dueDateString);
 
-        time_t completedDateString= arrayJobs[i]->completedDate;
+        time_t completedDateString= arrayJobs[*totLines2]->completedDate;
         //     time(&completedDateString);
         printf(" %s", ctime(&dueDateString));
         printf(" %s", ctime(&completedDateString));
-    }
-
-
+    *totLines2=newtot;
+    printf("\nPress [Enter] key to continue.\n");
+    while(getchar()!='\n'); // option TWO to clean stdin
+    getchar(); // wait for ENTER
 }
-// Function 5:  view_employees
+
+
+/* Function 5:  view_employees
+ *
+ * When the user selects the “view employees” option, this function prints a list
+ * of all employee information on record.
+ * Make sure that the employee information is in a report with headers,
+ * not simply a list of raw information.
+ */
+//
 
 void view_employee(Employee **arrayEmployees, int *totLines){
 
@@ -461,12 +483,85 @@ void view_employee(Employee **arrayEmployees, int *totLines){
 
     }
 
+    printf("Press [Enter] key to continue.\n");
+    while(getchar()!='\n'); // option TWO to clean stdin
+    getchar(); // wait for ENTER
 }
 
 
-// Function 6: sort_employee
+/* Function 6: sort_employee
+ *
+ * Give the user the option to sort employees by name.
+ * Store the sorted information and notify the user of the name of the file.
+ * This function displays the employee, number, sorted by employee.
+ * Make a copy of the original array of employees to perform the sorting function.
+ * Make sure that the employee information is in a report with headers,
+ * not simply a list of raw information.
+ *
+ */
+void sort_employee(Employee **arrayEmployees, int *totLines ){
 
-// Function 7:  view_job_information_time_due
+    int pass; // passes counter
+    int i; //comparison counter
+    int comparison;
+    Employee *hold; //temporary location used to swap array elements
+    int linecount;
+    linecount = *totLines;
+    Employee **newArray;
+    newArray = malloc(linecount * sizeof(Employee*));
+
+    memcpy(newArray, arrayEmployees, linecount * sizeof(Employee*));
+
+    /* loop to control number of passes */
+    for (pass = 1 ; pass < *totLines; pass++){
+
+        /* loop to control number of comparisons per pass */
+        for (i = 0 ; i < *totLines-1; i++){
+
+            comparison=strcmp(newArray[i]->lastName,newArray[i+1]->lastName);
+            if (comparison>0) {
+
+                hold = newArray[i];
+                newArray[i]   = newArray[i+1];
+                newArray[i+1] = hold;
+            } // end if
+        } // end inner for
+    } // end outer for
+    printf("sorted");
+    for (int i = 0; i < *totLines; i++) {
+        printf("\n[%d]: %d", (i + 1), newArray[i]->Number);
+        printf("  %s", newArray[i]->firstName);
+        printf(" %s", newArray[i]->lastName);
+
+    }
+    FILE *f3 = fopen("SortedEmployeeFile.txt", "w");
+    if (f3 == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    for (int l = 0; l < linecount; l++) {
+        fprintf(f3, "%d %s %s", newArray[l]->Number, newArray[l]->firstName, newArray[l]->lastName);
+        fprintf(f3, "\r\n");
+    }
+    printf("Data sorted and saved in SortedEmployeeFile.txt");
+
+    printf("Press [Enter] key to continue.\n");
+    while(getchar()!='\n'); // option TWO to clean stdin
+    getchar(); // wait for ENTER
+
+
+}
+
+/* Function 7:  view_job_information_time_due
+ *
+ * When the user selects the “View job information by date and time due” menu option,
+ * this function prompts the user for a job number.
+ * It then displays the date/time (in a human-readable format), the employee number,
+ * the customer and the time completed. Make sure that the information is in a
+ * report with headers, not simply a list of raw information.
+ */
 
 void view_jobs(Job **arrayJobs, int *totLines){
 
@@ -486,10 +581,129 @@ void view_jobs(Job **arrayJobs, int *totLines){
     }
 }
 
-// Function 8: sort_job_information_by_customer
 
-// Function 9: set_job_completed
+/* Function 8: sort_job_information_by_customer
+ *
+ * When the user selects the “sort job information by customer” menu options,
+ * this function display all jobs sorted by customer.
+ * Store the sorted information and notify the user of the name of the file.
+ * Make a copy of the original array of jobs to perform the sorting function.
+ * Make sure that the job information is in a report with headers,
+ * not simply a list of raw information
+ */
 
-// Function 10: view_job_information_by_employee
+void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
+    int pass=0; // passes counter
+    int i=0; //comparison counter
+    int comparison=0;
+    Job *hold; //temporary location used to swap array elements
+    int linecount;
+    linecount = *totLines2;
+    Job **newArray;
+    newArray = malloc(linecount * sizeof(Job*));
 
-// Function 11: save_data
+    memcpy(newArray, arrayJobs, linecount * sizeof(Job*));
+
+    /* loop to control number of passes */
+    for (pass = 1 ; pass < *totLines2; pass++){
+
+        /* loop to control number of comparisons per pass */
+        for (i = 0 ; i < *totLines2-1; i++){
+
+            comparison=strcmp(newArray[i]->customer,newArray[i+1]->customer);
+            if (comparison>0) {
+
+                hold = newArray[i];
+                newArray[i]   = newArray[i+1];
+                newArray[i+1] = hold;
+            } // end if
+        } // end inner for
+    } // end outer for
+    printf("sorted");
+    for (int i = 0; i < *totLines2; i++) {
+
+        printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
+        printf(" %d", arrayJobs[i]->jobNumber);
+        printf(" %s", arrayJobs[i]->customer);
+   //     printf(" %li", arrayJobs[i]->dueDate);
+   //     printf(" %li", arrayJobs[i]->completedDate);
+        time_t dueDateString= arrayJobs[i]->dueDate;
+        //    time(&dueDateString);
+
+        time_t completedDateString= arrayJobs[i]->completedDate;
+        //     time(&completedDateString);
+        printf(" %s", ctime(&dueDateString));
+        printf(" %s", ctime(&completedDateString));
+
+    }
+    FILE *f3 = fopen("SortedJobFile.txt", "w");
+    if (f3 == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    for (int l = 0; l < linecount; l++) {
+        fprintf(f3, "%d %d %s %li %li", arrayJobs[i]->EmployeeNumber, arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
+        fprintf(f3, "\r\n");
+    }
+    printf("Data sorted and saved in SortedEmployeeFile.txt");
+
+    printf("Press [Enter] key to continue.\n");
+    while(getchar()!='\n'); // option TWO to clean stdin
+    getchar(); // wait for ENTER
+}
+
+
+
+/* Function 9: set_job_completed
+ *
+ * When the user selects the “Set job as completed” menu options, prompt them for the job number.
+ * Then find the corresponding job and set the date and time completed variable to the current date and time.
+ * Store the updated information and notify the user of the name of the file.
+ */
+
+/* Function 10: view_job_information_by_employee
+ *
+ * When the user selects the “view job information by employee” menu option,
+ * this function displays each employee and the job number of the jobs that
+ * they have in the database.
+ * Make sure that the information is in a report with headers, not simply a list of raw information.
+ */
+
+
+/* Function 11: save_data
+ *
+ * This function is called when the user chooses to exit the system.
+ * Open all data files and write out the information contained in the respective arrays.
+ */
+void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *totLines2 ){
+
+    FILE *f = fopen("employeeFile.txt", "w");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < *totLines; i++) {
+        fprintf(f, "%d %s %s", arrayEmployees[i]->Number, arrayEmployees[i]->firstName, arrayEmployees[i]->lastName);
+        fprintf(f, "\r\n");
+    }
+
+    FILE *f2 = fopen("jobFile.txt", "w");
+    if (f2 == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < *totLines2; i++) {
+        fprintf(f2, "%d %d %s %li %li", arrayJobs[i]->EmployeeNumber, arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
+        fprintf(f2, "\r\n");
+    }
+
+
+    printf("File saved!\n");
+    exit(1);
+}
