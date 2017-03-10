@@ -89,7 +89,8 @@ int main() {
          //       view_job_information_by_id(arrayJobs, &totLines4); // view details of a job id
                 break;
             case 8:
-                sort_job_information_by_customer(arrayJobs, &totLines4);//Sort job information by customer
+                view_job_information_by_employee(arrayJobs, &totLines4);
+          //      sort_job_information_by_customer(arrayJobs, &totLines4);//Sort job information by customer
                 break;
             case 9:
                 sort_job_information_by_date_time_due(arrayJobs, &totLines4);//
@@ -861,23 +862,39 @@ void view_job_information_by_employee(Job **arrayJobs, int *totLines){
         } // end inner for
     } // end outer for
 
+
+    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
+    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
+
     for (int i = 0; i < *totLines; i++) {
         if(newArray[i]->EmployeeNumber==employee_id){
-            printf("\n[%d]: %d", (i + 1), newArray[i]->EmployeeNumber);
-            printf(" %d", newArray[i]->jobNumber);
-            printf(" %s", newArray[i]->customer);
+            char *dueDateString2 = calloc(20, sizeof(char)); //"Apr 20, 2017 @12:00" + NULL
+            char *completedDateString2 = calloc(20, sizeof(char)); //"Thu Apr 20, 2017" + NULL
 
-            time_t dueDateString= newArray[i]->dueDate;
-            //    time(&dueDateString);
-
-            time_t completedDateString= newArray[i]->completedDate;
+            time_t dueDateString = newArray[i]->dueDate;
+            time_t completedDateString = newArray[i]->completedDate;
             //     time(&completedDateString);
-            if(dueDateString!=0 && dueDateString!=NULL){
-                printf(" %s", ctime(&dueDateString));
-            } else {printf("No due date entered!");}
-            if(completedDateString!=0 && completedDateString!=NULL) {
-                printf(" %s", ctime(&completedDateString));
-            } else {printf("No completed date entered!");}
+
+            if( (int)dueDateString==83886080){
+                dueDateString2="No date inserted";
+            }
+            else{
+                strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
+
+            }
+            if((int)completedDateString==83886080){
+                completedDateString2="No date inserted";
+            }
+
+            else{
+                strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
+            }
+
+
+
+            printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
+                   newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
+
 
         }
     }
