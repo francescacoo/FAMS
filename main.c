@@ -735,16 +735,21 @@ void view_job_information_time_due(Job **arrayJobs, int *totLines) {
         time_t completedDateString = newArray[i]->completedDate;
         //     time(&completedDateString);
 
-        if(dueDateString==83886080){
+        if( (int)dueDateString==83886080){
             dueDateString2="No date inserted";
         }
-        if(completedDateString==83886080){
+        else{
+            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
+
+        }
+        if((int)completedDateString==83886080){
             completedDateString2="No date inserted";
         }
 
+        else{
+            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
+        }
 
-        strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-        strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
 
 
         printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
