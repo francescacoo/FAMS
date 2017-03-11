@@ -53,6 +53,7 @@ Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort 
 Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort );
 void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate);
 void print_jobs_header();
+void print_employees_header();
 
 int main() {
     int chosenOption = 0;           // define and reset the chosenOption from the menu
@@ -257,7 +258,7 @@ Job** load_data_job(char *filename, int *totLines2) {
     printf("\n Job load data started..");
     FILE *jobFile; // Input file
 
-//if the file doesn’t exist:
+    //if the file doesn’t exist create it
     if ((jobFile = fopen(filename, "r")) == NULL) {
         printf("The file doesn't exist. Creating it..");
         jobFile = fopen(filename, "wb"); // create the file
@@ -267,7 +268,7 @@ Job** load_data_job(char *filename, int *totLines2) {
     int i;                    // Loop counter
     char line[100];           // Buffer to read each line
     int line_count;           // Total number of lines
-    char temp[200];
+    char temp[200];           // temporary buffer for the read word
     // Clear the output parameter for the number of lines */
     *totLines2 = 0;
 
@@ -325,13 +326,13 @@ Job** load_data_job(char *filename, int *totLines2) {
  */
 void add_new_employee(Employee **arrayEmployees, int *totLines ){
 
-    int newtot=*totLines+1; // new line total
+    int newtot=*totLines+1; // new line total, adding one record
     arrayEmployees=realloc(arrayEmployees,newtot* sizeof(Employee*)); // reallocate memory for the array with one more Employee
 
     int Number;//employee number
-    char firstName[20];//
-    char lastName[20];//
-
+    char firstName[20];
+    char lastName[20];
+    // prompt the user to insert the data
     printf("Insert the employee ID :  ");
     scanf("%d",&Number);
     printf("Insert the employee first name :  ");
@@ -339,15 +340,15 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
     printf("Insert the employee last name :  ");
     scanf("%s",lastName);
 
-    arrayEmployees[*totLines] = malloc(sizeof(Employee)); //allocate memory
+    arrayEmployees[*totLines] = malloc(sizeof(Employee)); //allocate memory for the Employee struct
 
     arrayEmployees[*totLines]->Number = Number; // copy the Number
 
     arrayEmployees[*totLines]->firstName = calloc(strlen(firstName) + 1, sizeof(char)); // allocate memory for the char
-    strcpy(arrayEmployees[*totLines]->firstName, firstName);
+    strcpy(arrayEmployees[*totLines]->firstName, firstName); // copy the string in the array
 
     arrayEmployees[*totLines]->lastName = calloc(strlen(lastName) + 1, sizeof(char));   // allocate memory for the char
-    strcpy(arrayEmployees[*totLines]->lastName, lastName);
+    strcpy(arrayEmployees[*totLines]->lastName, lastName); // copy the string in the array
 
     *totLines=newtot; //update the total of Employees
 
@@ -378,7 +379,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     int hour;
     time_t dueDate;         //The job due date
 
-    int newtot=*totLines2+1;
+    int newtot=*totLines2+1; // new total with the added Job
     arrayJobs=realloc(arrayJobs,newtot* sizeof(Job*)); //reallocate memory for the array with one more Job
 
     // calculate the current time
@@ -480,7 +481,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     time_t dueDateString= arrayJobs[*totLines2]->dueDate;
 
     time_t completedDateString= arrayJobs[*totLines2]->completedDate;
-
+    // convert t_time to string and print the value
     printf(" %s", ctime(&dueDateString));
     printf(" %s", ctime(&completedDateString));
     *totLines2=newtot;
@@ -500,9 +501,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
 void view_employee(Employee **arrayEmployees, int *totLines){
     // print the header
-    printf("%s\n", "#### ALL EMPLOYEES ####");
-    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
+    print_employees_header();
     // loop through the unsorted array
     for (int i = 0; i < *totLines; i++) {
         printf("%6d   %-15s   %-15s\r\n", arrayEmployees[i]->Number,arrayEmployees[i]->firstName,arrayEmployees[i]->lastName);
@@ -523,10 +522,8 @@ void view_employee_by_name(Employee **arrayEmployees, int *totLines) {
 
     newArray=sort_employees(newArray,linecount,"LastName" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    // print headers
-    printf("%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####");
-    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
+    // print the header
+    print_employees_header();
 
     // print the sorted array
     for (int i = 0; i < *totLines; i++) {
@@ -552,9 +549,7 @@ void sort_employee(Employee **arrayEmployees, int *totLines ){
 
 
     // print the header
-    printf("%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####");
-    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
+    print_employees_header();
 
     // print the sorted array
     for (int i = 0; i < *totLines; i++) {
@@ -1066,6 +1061,13 @@ Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
     }
     // return the sorted array
     return arrayToSort;
+}
+
+void print_employees_header(){
+    // Print the header
+    printf("%s\n", "#### ALL EMPLOYEES ####");
+    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
 }
 
 void print_jobs_header(){
