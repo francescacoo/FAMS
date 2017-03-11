@@ -51,8 +51,8 @@ void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *t
 void continue_enter();
 Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort );
 Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort );
-void print_jobs(Job** newArray, int totLines);
-
+void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate);
+void print_jobs_header();
 
 int main() {
     int chosenOption = 0;           // define and reset the chosenOption from the menu
@@ -132,45 +132,45 @@ int display_menu() {
     puts("\n#################");
     puts("###    Menu   ###");
     puts("#################\n");
-        //loop until a valid selection is made
-        while (chosenOption == 0) {
+    //loop until a valid selection is made
+    while (chosenOption == 0) {
 
-            puts("1. Add an Employee");
-            puts("2. Add a job");
-            puts("#####EMPLOYEES######");
+        puts("1. Add an Employee");
+        puts("2. Add a job");
+        puts("#####EMPLOYEES######");
 
-            puts("3. View all employees information");
-            puts("4. View all employees sorted by name");
+        puts("3. View all employees information");
+        puts("4. View all employees sorted by name");
 
-            puts("5. Export employees sorted by name");
-            puts("6. Export employees by id");
+        puts("5. Export employees sorted by name");
+        puts("6. Export employees by id");
 
-            puts("#####JOBS######");
-            puts("7. View all jobs sorted by customer");
-            puts("8. View jobs sorted by employee");
+        puts("#####JOBS######");
+        puts("7. View all jobs sorted by customer");
+        puts("8. View jobs sorted by employee");
 
-            puts("9. Search a job by id");
-            puts("10. Search jobs by date and time due");
+        puts("9. Search a job by id");
+        puts("10. Search jobs by date and time due");
 
-            puts("11. Export job information by customer");
-            puts("12. Export job information by date and time due");
+        puts("11. Export job information by customer");
+        puts("12. Export job information by date and time due");
 
-            puts("13. Set job as completed");
+        puts("13. Set job as completed");
 
-            puts("14. Exit");
-            printf("Please select an option:  "); // prompt to select an option
-            scanf("%d", &chosenOption);
+        puts("14. Exit");
+        printf("Please select an option:  "); // prompt to select an option
+        scanf("%d", &chosenOption);
 
-            if (chosenOption > 14) {
-                puts("The number selected is not valid.");
-                chosenOption = 0;
-            }
-
-            printf("You selected option: %d\n", chosenOption);
-
+        if (chosenOption > 14) {
+            puts("The number selected is not valid.");
+            chosenOption = 0;
         }
-        return chosenOption;
+
+        printf("You selected option: %d\n", chosenOption);
+
     }
+    return chosenOption;
+}
 
 //
 /* (EXAM Function 2:  load_data)
@@ -229,7 +229,7 @@ Employee** load_data_employee(char *filename, int *totLines) {
 
     // Read each line from the file and copy it in the array.
     for (i = 0; i < line_count; i++) {
-            //allocate memory
+        //allocate memory
         array[i] = malloc(sizeof(Employee));
 
         fscanf(employeeFile, "%s", temp); //Employee Number
@@ -418,8 +418,8 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     }
     // check how many days the selected month has
     int validDay = (month == 2 ?
-                       (year % 4 ? 28 : (year % 100 ? 29 : (year % 400 ? 28 : 29))) :
-                       ((month - 1) % 7 % 2 ? 30 : 31));
+                    (year % 4 ? 28 : (year % 100 ? 29 : (year % 400 ? 28 : 29))) :
+                    ((month - 1) % 7 % 2 ? 30 : 31));
 
     puts("Insert the day ");
     scanf(" %d", &day);
@@ -657,9 +657,10 @@ void view_job_information_customer(Job **arrayJobs, int *totLines) {
     newArray=sort_jobs(newArray,linecount,"customer" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
     printf("sorted");
-
-    print_jobs(newArray,linecount);
-
+    print_jobs_header();
+    for (int i = 0; i < linecount; i++) {
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+    }
     continue_enter();
 }
 
@@ -681,7 +682,10 @@ void view_job_information_by_employee(Job **arrayJobs, int *totLines){
 
     newArray=sort_jobs(newArray,linecount,"EmployeeNumber" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    print_jobs(newArray,linecount);
+    print_jobs_header();
+    for (int i = 0; i < linecount; i++) {
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+    }
 
     continue_enter();
 }
@@ -700,35 +704,13 @@ void view_job_information_by_id(Job **arrayJobs, int *totLines){
     printf("Insert the job ID :  "); // prompt to insert the job id
     scanf("%d",&job_id);
     // Print the header
-    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
+    print_jobs_header();
     // loop through the array
     for (int i = 0; i < *totLines; i++) {
         // if the id is found print the details of the job
         if(arrayJobs[i]->jobNumber==job_id){
             tot_found++;
-            char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
-            char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
-
-            time_t dueDateString = arrayJobs[i]->dueDate;
-            time_t completedDateString = arrayJobs[i]->completedDate;
-            // check if the date is not the default
-            if( (int)dueDateString==83886080){
-                dueDateString2="No date inserted";
-            }
-            else{
-                strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-            }
-            // check if the date is not the default
-            if((int)completedDateString==83886080){
-                completedDateString2="No date inserted";
-            }
-            else{
-                strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-            }
-            // print the details of the job
-            printf("%5d  %-20s%-5d  %-21s%-21s\n", arrayJobs[i]->jobNumber, arrayJobs[i]->customer,
-                   arrayJobs[i]->EmployeeNumber, dueDateString2, completedDateString2);
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     }
     // if no jobs found print the error
@@ -805,36 +787,14 @@ void view_job_information_by_due_date(Job **arrayJobs, int *totLines){
     newTimeS2.tm_yday = -1;
     time_t maxDateSelected = mktime(&newTimeS2);
 
-    // print the header
-    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
+    // Print the header
+    print_jobs_header();
     // loop the array
     for (int i = 0; i < *totLines; i++) {
         // if the due date is between the minimum and maximum print the details
         if(arrayJobs[i]->dueDate>=minDateSelected && arrayJobs[i]->dueDate<=maxDateSelected){
             tot_found++;
-            char *dueDateString2 = calloc(20, sizeof(char)); //allocate memory for the due date
-            char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
-
-            time_t dueDateString = arrayJobs[i]->dueDate;
-            time_t completedDateString = arrayJobs[i]->completedDate;
-
-            if( (int)dueDateString==83886080){
-                dueDateString2="No date inserted";
-            }
-            else{
-                strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-            }
-            if((int)completedDateString==83886080){
-                completedDateString2="No date inserted";
-            }
-
-            else{
-                strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-            }
-
-            printf("%5d  %-20s%-5d  %-21s%-21s\n", arrayJobs[i]->jobNumber, arrayJobs[i]->customer,
-                   arrayJobs[i]->EmployeeNumber, dueDateString2, completedDateString2);
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     }
     if(tot_found==0){
@@ -862,14 +822,18 @@ void view_job_information_by_due_date(Job **arrayJobs, int *totLines){
 void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
 
     int linecount = *totLines2;
-    Job **newArray;
+    Job **newArray; //new array of Job pointers
     newArray = malloc(linecount * sizeof(Job*)); //allocate memory for the new array
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
 
     newArray=sort_jobs(newArray,linecount,"customer" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    print_jobs(newArray,linecount);
+    print_jobs_header(); // print the header
+    //loop through the sorted array and call the print function to print the records
+    for (int i = 0; i < linecount; i++) {
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+    }
 
     FILE *f3 = fopen("SortedJobsByCustomer.txt", "w");
     if (f3 == NULL)
@@ -900,13 +864,17 @@ void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
 void sort_job_information_by_date_time_due(Job **arrayJobs, int *totLines2) {
 
     int linecount = *totLines2;
-    Job **newArray;
+    Job **newArray; // new array of Job pointers
     newArray = malloc(linecount * sizeof(Job*)); //allocate memory for the new array
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
     newArray=sort_jobs(newArray,linecount,"dueDate" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    print_jobs(newArray,linecount);
+    print_jobs_header(); //print the header
+    //loop through the sorted array and call the print function to print the records
+    for (int i = 0; i < linecount; i++) {
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+    }
 
 
     FILE *f3 = fopen("SortedJobsByDueDate.txt", "w");
@@ -920,15 +888,15 @@ void sort_job_information_by_date_time_due(Job **arrayJobs, int *totLines2) {
     fprintf(f3,"%5s%-20s%-5s%-21s%-21s\r\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
 
 
-        for (int i = 0; i < linecount; i++) {
-            fprintf(f3, "%5d  %-20s%-5d  %-21li%-21li", newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
-            fprintf(f3, "\r\n");
-        }
-        puts("\nData sorted and saved in SortedJobsByDueDate.txt");
-        fclose(f3); // closing file
+    for (int i = 0; i < linecount; i++) {
+        fprintf(f3, "%5d  %-20s%-5d  %-21li%-21li", newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        fprintf(f3, "\r\n");
+    }
+    puts("\nData sorted and saved in SortedJobsByDueDate.txt");
+    fclose(f3); // closing file
 
     continue_enter();
-    }
+}
 
 
 /* *****************************************************
@@ -939,31 +907,16 @@ void sort_job_information_by_date_time_due(Job **arrayJobs, int *totLines2) {
 void set_job_as_completed(Job **arrayJobs, int *totLines2){
     int tot_found=0; // counter for the tot record found. If 0 display a non found message
     int job_id;
-    printf("Insert the job ID :  "); // prompt to insert the input file name
+    printf("Insert the job ID :  "); // prompt to insert the job ID to find
     scanf("%d",&job_id);
 
     // loop through the job array
     for (int i = 0; i < *totLines2; i++) {
-        if (arrayJobs[i]->jobNumber == job_id) {                                // if it matches the job ID entered
-            tot_found++;                                                        //increase the counter
-            arrayJobs[i]->completedDate = time(NULL);
-
-            printf("\n[%d]: %d", (i + 1), arrayJobs[i]->EmployeeNumber);
-            printf(" %d", arrayJobs[i]->jobNumber);
-            printf(" %s", arrayJobs[i]->customer);
-
-            time_t dueDateString = arrayJobs[i]->dueDate;
-            //    time(&dueDateString);
-
-            time_t completedDateString = arrayJobs[i]->completedDate;
-            //     time(&completedDateString);
-            if (dueDateString != 0 && dueDateString != NULL) {
-                printf(" %s", ctime(&dueDateString));
-            } else { printf("No due date entered!"); }
-            if (completedDateString != 0 && completedDateString != NULL) {
-                printf(" %s", ctime(&completedDateString));
-            } else { printf("No completed date entered!"); }
-
+        if (arrayJobs[i]->jobNumber == job_id) {     // if it matches the job ID entered
+            tot_found++;                             //increase the counter
+            arrayJobs[i]->completedDate = time(NULL);// set completedDate to current time
+            // call the function to print the record
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     } //end for loop
     if(tot_found==0){printf("The job ID selected doesn't exist\n");} //print error message if the job ID is not found
@@ -1025,7 +978,6 @@ void continue_enter(){
 }
 
 // array sort function for Employee
-
 Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort ){
     int pass; // passes counter
     int comparison;
@@ -1065,7 +1017,6 @@ Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort 
 }
 
 // array sort function for Job
-
 Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
     int pass; // passes counter
     int comparison;
@@ -1117,34 +1068,33 @@ Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
     return arrayToSort;
 }
 
-void print_jobs(Job** newArray,int totLines) {
+void print_jobs_header(){
     // Print the header
     printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
     printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
-    for (int i = 0; i < totLines; i++) {
+}
 
-        char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
-        char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
+void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate) {
+    char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
+    char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
 
-        time_t dueDateString = newArray[i]->dueDate;
-        time_t completedDateString = newArray[i]->completedDate;
-        // check if the date inserted is the default
-        if( (int)dueDateString==83886080){
-            dueDateString2="No date inserted";
-        }
-        else{
-            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-        }
-        // check if the date inserted is the default
-        if((int)completedDateString==83886080){
-            completedDateString2="No date inserted";
-        }
-        else{
-            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-        }
-
-        // print the record
-        printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
-               newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
+    time_t dueDateString = dueDate;
+    time_t completedDateString = completedDate;
+    // check if the date inserted is the default
+    if( (int)dueDateString==83886080){
+        dueDateString2="No date inserted";
     }
+    else{
+        strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
+    }
+    // check if the date inserted is the default
+    if((int)completedDateString==83886080){
+        completedDateString2="No date inserted";
+    }
+    else{
+        strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
+    }
+    // print the record
+    printf("%5d  %-20s%-5d  %-21s%-21s\n", jobNumber, customer,
+           EmployeeNumber, dueDateString2, completedDateString2);
 }
