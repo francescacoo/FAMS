@@ -18,6 +18,7 @@ typedef struct
     char* customer;         //customer
     time_t dueDate;         //The job due date
     time_t completedDate;  //The job's actual completion date
+    int priority;           // job priority, default 5, 1 most urgent
 }Job;
 
 // FUNCTION prototypes
@@ -43,7 +44,7 @@ void view_job_information_customer(Job **arrayJobs, int *totLines2 );
 void view_job_information_by_id(Job **arrayJobs, int *totLines2 );
 void view_job_information_by_employee(Job **arrayJobs, int *totLines2 );
 void view_job_information_by_due_date(Job **arrayJobs, int *totLines2 );
-
+void print_urgent_jobs(Job **arrayJobs, int *totLines2 );
 
 void set_job_as_completed(Job **arrayJobs, int *totLines2);
 
@@ -51,7 +52,7 @@ void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *t
 void continue_enter();
 Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort );
 Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort );
-void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate);
+void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate, int priority);
 void print_jobs_header();
 void print_employees_header();
 
@@ -70,7 +71,7 @@ int main() {
     chosenOption = display_menu();  // call the function to display the menu and store the chose option
 
     // loop until the user select to exit
-    while (chosenOption!=14) {
+    while (chosenOption!=15) {
 
         switch(chosenOption){
             case 1:
@@ -84,7 +85,6 @@ int main() {
                 break;
             case 4:
                 view_employee_by_name(arrayEmployees, &totLinesEmployees); //view all employees sorted by name
-
                 break;
             case 5:
                 sort_employee(arrayEmployees, &totLinesEmployees); //Sort employees by name and export to external file
@@ -113,13 +113,16 @@ int main() {
             case 13:
                 set_job_as_completed(arrayJobs, &totLinesJobs); // set a job as completed
                 break;
+            case 14:
+                print_urgent_jobs(arrayJobs, &totLinesJobs); // set a job as completed
+                break;
             default:
                 break;
         }
         chosenOption = display_menu();  //  display the menu
     }
     // if the user selects exits
-    if(chosenOption==14){
+    if(chosenOption==15){
         save_data( arrayEmployees,  &totLinesEmployees,  arrayJobs,  &totLinesJobs ); //call the save data function passing the two arrays
     }
     return 0;
@@ -157,8 +160,8 @@ int display_menu() {
         puts("12. Export job information by date and time due");
 
         puts("13. Set job as completed");
-
-        puts("14. Exit");
+        puts("14. Print most urgent unfinished jobs");
+        puts("15. Exit");
         printf("Please select an option:  "); // prompt to select an option
         scanf("%d", &chosenOption);
 
@@ -309,6 +312,9 @@ Job** load_data_job(char *filename, int *totLines2) {
         //Get the Completion Date and store in the data structure
         fscanf(jobFile, "%s", temp); //Completed Date
         array[i]->completedDate = (time_t)strtoull(temp, NULL, 10);
+
+        fscanf(jobFile, "%s", temp); //Priority
+        array[i]->priority = (int) strtol(temp, (char **)NULL, 10);    // convert the char to integer and store it in the array
     }
 
     // Update the output parameter with the total number of lines
@@ -371,13 +377,14 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
     int EmployeeNumber;//employee number
     int jobNumber;
-    char *customer;
+    char *customer[20];
     int day;
     int month;
     int year;
     int minute;
     int hour;
     time_t dueDate;         //The job due date
+    int priority;
 
     int newtot=*totLines2+1; // new total with the added Job
     arrayJobs=realloc(arrayJobs,newtot* sizeof(Job*)); //reallocate memory for the array with one more Job
@@ -435,17 +442,18 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
     // check that the hour is correct and not less than today hour
     while(hour>23 || (hour<currenthour && day==currentday && month==currentmonth && year==currentyear)) {
-        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the input file name
+        puts("The hour inserted is not valid. \nInsert the day "); // prompt to insert the input file name
         scanf(" %d", &hour);
     }
     puts("Insert the minute ");
     scanf(" %d", &minute);
     // check that the minute is correct and not less than current time
     while(minute>59 || (minute<currentminute && hour==currenthour && day==currentday && month==currentmonth && year==currentyear)) {
-        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the day
+        puts("The minute inserted is not valid. \nInsert the day "); // prompt to insert the day
         scanf(" %d", &minute);
     }
-
+    printf("Insert the priority (1 most urgent to 5) :  ");
+    scanf(" %d",&priority);
     //create the new struct with the inserted time
     struct tm newTimeS;
     newTimeS.tm_year = year - 1900;
@@ -472,6 +480,8 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
     arrayJobs[*totLines2]->dueDate = dueDate;
 
+    arrayJobs[*totLines2]->priority = priority;
+
     // confirm that the job has been added and print the details, converting date to human readable
     printf("The new employee has been added:\n");
     printf("\n[%d]: %d", (*totLines2 + 1), arrayJobs[*totLines2]->EmployeeNumber);
@@ -484,6 +494,9 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     // convert t_time to string and print the value
     printf(" %s", ctime(&dueDateString));
     printf(" %s", ctime(&completedDateString));
+
+    printf(" %d", arrayJobs[*totLines2]->priority);
+
     *totLines2=newtot;
 
     continue_enter();
@@ -654,7 +667,7 @@ void view_job_information_customer(Job **arrayJobs, int *totLines) {
     printf("sorted");
     print_jobs_header();
     for (int i = 0; i < linecount; i++) {
-        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate, newArray[i]->priority);
     }
     continue_enter();
 }
@@ -679,7 +692,7 @@ void view_job_information_by_employee(Job **arrayJobs, int *totLines){
 
     print_jobs_header();
     for (int i = 0; i < linecount; i++) {
-        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate, newArray[i]->priority);
     }
 
     continue_enter();
@@ -705,7 +718,7 @@ void view_job_information_by_id(Job **arrayJobs, int *totLines){
         // if the id is found print the details of the job
         if(arrayJobs[i]->jobNumber==job_id){
             tot_found++;
-            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate, arrayJobs[i]->priority);
         }
     }
     // if no jobs found print the error
@@ -789,7 +802,7 @@ void view_job_information_by_due_date(Job **arrayJobs, int *totLines){
         // if the due date is between the minimum and maximum print the details
         if(arrayJobs[i]->dueDate>=minDateSelected && arrayJobs[i]->dueDate<=maxDateSelected){
             tot_found++;
-            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate, arrayJobs[i]->priority);
         }
     }
     if(tot_found==0){
@@ -827,7 +840,7 @@ void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
     print_jobs_header(); // print the header
     //loop through the sorted array and call the print function to print the records
     for (int i = 0; i < linecount; i++) {
-        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate, newArray[i]->priority);
     }
 
     FILE *f3 = fopen("SortedJobsByCustomer.txt", "w");
@@ -868,7 +881,7 @@ void sort_job_information_by_date_time_due(Job **arrayJobs, int *totLines2) {
     print_jobs_header(); //print the header
     //loop through the sorted array and call the print function to print the records
     for (int i = 0; i < linecount; i++) {
-        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate, newArray[i]->priority);
     }
 
 
@@ -911,7 +924,7 @@ void set_job_as_completed(Job **arrayJobs, int *totLines2){
             tot_found++;                             //increase the counter
             arrayJobs[i]->completedDate = time(NULL);// set completedDate to current time
             // call the function to print the record
-            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
+            print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, arrayJobs[i]->EmployeeNumber, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate, arrayJobs[i]->priority);
         }
     } //end for loop
     if(tot_found==0){printf("The job ID selected doesn't exist\n");} //print error message if the job ID is not found
@@ -919,9 +932,68 @@ void set_job_as_completed(Job **arrayJobs, int *totLines2){
     continue_enter();
 }
 
+
 /* *****************************************************
  *
- * SAVE DATA (AND EXIT) ----- MENU 14
+ * VIEW JOBS OF ORDERED BY EMPLOYEE ----- MENU 14
+ * (Exam function 10: view_job_information_by_employee)
+ *
+ * *****************************************************/
+
+void print_urgent_jobs(Job **arrayJobs, int *totLines){
+
+    int linecount;
+    linecount = *totLines;
+    Job **newArray; // new array of Job pointers
+    newArray = malloc(linecount * sizeof(Job*)); // allocate memory for the new array
+
+    memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
+
+    Job **orderedArray; // new array of Job pointers
+    orderedArray = malloc(linecount * sizeof(Job*)); // allocate memory for the new array
+
+    //ORDER THE NEW ARRAY BY DUE DATE
+    newArray=sort_jobs(newArray,linecount,"dueDate" ); // call the sorting function passing the new array, lines count and parameter to sort on
+
+    // CALCULATE CURRENT TIME
+
+    time_t timenow;
+    time(&timenow);
+    time_t nextThreeDays;
+    nextThreeDays=timenow+259200; // timenow + 86400 * 3
+
+    for(int i=0; i<linecount; i++){
+        if(newArray[i]->dueDate<nextThreeDays){
+            orderedArray[i] = malloc(sizeof(Job)); //allocate memory for the job struct
+            orderedArray[i]->EmployeeNumber=newArray[i]->EmployeeNumber;
+            orderedArray[i]->jobNumber=newArray[i]->jobNumber;
+            orderedArray[i]->customer=calloc(strlen(newArray[i]->customer) + 1, sizeof(char));
+            strcpy(orderedArray[i]->customer, newArray[i]->customer);
+            orderedArray[i]->dueDate=newArray[i]->dueDate;
+            orderedArray[i]->completedDate=newArray[i]->completedDate;
+            orderedArray[i]->priority=newArray[i]->priority;
+        }
+    }
+    //ORDER THE NEW ARRAY BY DUE PRIORITY
+    orderedArray=sort_jobs(orderedArray,linecount,"priority" ); // call the sorting function passing the new array, lines count and parameter to sort on
+
+    print_jobs_header();
+
+    for (int i = 0; i < linecount; i++) {
+
+    // IF the job is not completed
+        if( (int)orderedArray[i]->dueDate==83886080){
+        print_jobs(orderedArray[i]->jobNumber, orderedArray[i]->customer, orderedArray[i]->EmployeeNumber, orderedArray[i]->dueDate, orderedArray[i]->completedDate, orderedArray[i]->priority);
+        }
+    }
+    continue_enter();
+}
+
+
+
+/* *****************************************************
+ *
+ * SAVE DATA (AND EXIT) ----- MENU 15
  *
  * *****************************************************/
 /* Function 11: save_data
@@ -1059,6 +1131,20 @@ Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
             } // end inner for
         } // end outer for
     }
+
+    if(fieldToSort=="priority"){
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                if (arrayToSort[i]->priority > arrayToSort[i+1]->priority) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
     // return the sorted array
     return arrayToSort;
 }
@@ -1076,7 +1162,7 @@ void print_jobs_header(){
     printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
 }
 
-void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate) {
+void print_jobs(int jobNumber, char* customer, int EmployeeNumber, time_t dueDate, time_t completedDate, int priority) {
     char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
     char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
 
