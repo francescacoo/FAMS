@@ -49,6 +49,10 @@ void set_job_as_completed(Job **arrayJobs, int *totLines2);
 
 void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *totLines2 );
 void continue_enter();
+Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort );
+Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort );
+void print_jobs(Job** newArray, int totLines);
+
 
 int main() {
     int chosenOption = 0;           // define and reset the chosenOption from the menu
@@ -107,6 +111,8 @@ int main() {
                 break;
             case 13:
                 set_job_as_completed(arrayJobs, &totLinesJobs); // set a job as completed
+                break;
+            default:
                 break;
         }
         chosenOption = display_menu();  //  display the menu
@@ -364,14 +370,13 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
     int EmployeeNumber;//employee number
     int jobNumber;
-    char *customer[30];
+    char *customer;
     int day;
     int month;
     int year;
     int minute;
     int hour;
     time_t dueDate;         //The job due date
-    time_t completedDate;  //The job completed date
 
     int newtot=*totLines2+1;
     arrayJobs=realloc(arrayJobs,newtot* sizeof(Job*)); //reallocate memory for the array with one more Job
@@ -496,11 +501,11 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 void view_employee(Employee **arrayEmployees, int *totLines){
     // print the header
     printf("%s\n", "#### ALL EMPLOYEES ####");
-    printf("%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
     // loop through the unsorted array
     for (int i = 0; i < *totLines; i++) {
-        printf("%6d   %-15s   %-15s\n", arrayEmployees[i]->Number,arrayEmployees[i]->firstName,arrayEmployees[i]->lastName);
+        printf("%6d   %-15s   %-15s\r\n", arrayEmployees[i]->Number,arrayEmployees[i]->firstName,arrayEmployees[i]->lastName);
     }
     continue_enter();
 }
@@ -508,10 +513,7 @@ void view_employee(Employee **arrayEmployees, int *totLines){
  * View all employees sorted by name
  */
 void view_employee_by_name(Employee **arrayEmployees, int *totLines) {
-    int pass; // passes counter
-    int i; //comparison counter
-    int comparison;
-    Employee *hold; //temporary location used to swap array elements
+
     int linecount;
     linecount = *totLines;
     Employee **newArray;    // new array of Employees pointers
@@ -519,28 +521,16 @@ void view_employee_by_name(Employee **arrayEmployees, int *totLines) {
 
     memcpy(newArray, arrayEmployees, linecount * sizeof(Employee*)); // copy the employeesArray to the new array
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines; pass++){
-        /* loop to control number of comparisons per pass */
-        for (i = 0 ; i < *totLines-1; i++){
-            // compare the last name
-            comparison=strcmp(newArray[i]->lastName,newArray[i+1]->lastName);
-            if (comparison>0) {
-                hold = newArray[i];
-                newArray[i]   = newArray[i+1];
-                newArray[i+1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
+    newArray=sort_employees(newArray,linecount,"LastName" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
     // print headers
     printf("%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####");
-    printf("%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
 
     // print the sorted array
     for (int i = 0; i < *totLines; i++) {
-        printf("%6d   %-15s   %-15s\n", newArray[i]->Number,newArray[i]->firstName,newArray[i]->lastName);
+        printf("%6d   %-15s   %-15s\r\n", newArray[i]->Number,newArray[i]->firstName,newArray[i]->lastName);
     }
     continue_enter();
 }
@@ -552,37 +542,19 @@ void view_employee_by_name(Employee **arrayEmployees, int *totLines) {
  */
 void sort_employee(Employee **arrayEmployees, int *totLines ){
 
-    int pass; // passes counter
-    int i; //comparison counter
-    int comparison;
-    Employee *hold; //temporary location used to swap array elements
     int linecount;
     linecount = *totLines;
     Employee **newArray; // new array of Employee pointers
     newArray = malloc(linecount * sizeof(Employee*)); // allocate memory for the new array
 
     memcpy(newArray, arrayEmployees, linecount * sizeof(Employee*)); // copy the array
+    newArray=sort_employees(newArray,linecount,"LastName" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines; pass++){
-
-        /* loop to control number of comparisons per pass */
-        for (i = 0 ; i < *totLines-1; i++){
-
-            comparison=strcmp(newArray[i]->lastName,newArray[i+1]->lastName);
-            if (comparison>0) {
-
-                hold = newArray[i];
-                newArray[i]   = newArray[i+1];
-                newArray[i+1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
 
     // print the header
     printf("%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####");
-    printf("%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
 
     // print the sorted array
     for (int i = 0; i < *totLines; i++) {
@@ -597,9 +569,9 @@ void sort_employee(Employee **arrayEmployees, int *totLines ){
         f3 = fopen("SortedEmployeeFile.txt", "wb");
     }
     // set the header in the report file
-    fprintf(f3,"%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####\n");
-    fprintf(f3,"%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    fprintf(f3,"%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    fprintf(f3,"%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####\r\n");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
     // save the sorted array to the file
     for (int l = 0; l < linecount; l++) {
         fprintf(f3, "%6d   %-15s   %-15s", newArray[l]->Number, newArray[l]->firstName, newArray[l]->lastName);
@@ -619,35 +591,22 @@ void sort_employee(Employee **arrayEmployees, int *totLines ){
 
 void sort_employee_by_id(Employee **arrayEmployees, int *totLines ){
 
-    int pass; // passes counter
-    int i; //comparison counter
-    Employee *hold; //temporary location used to swap array elements
     int linecount;
     linecount = *totLines;
     Employee **newArray; // new array of Employee pointers
     newArray = malloc(linecount * sizeof(Employee*)); // allocate memory for the new array
 
     memcpy(newArray, arrayEmployees, linecount * sizeof(Employee*)); // copy the array
+    newArray=sort_employees(newArray,linecount,"Number" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines; pass++){
-        /* loop to control number of comparisons per pass */
-        for (i = 0 ; i < *totLines-1; i++){
-            if (newArray[i]->Number>newArray[i+1]->Number) {
-                hold = newArray[i];
-                newArray[i]   = newArray[i+1];
-                newArray[i+1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
 
     // print the header
-    printf("%s\n", "#### ALL EMPLOYEES SORTED BY ID ####");
-    printf("%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    printf("%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    printf("%s\n", "#### ALL EMPLOYEES SORTED BY ID ####\r\n");
+    printf("%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    printf("%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
 
     for (int i = 0; i < *totLines; i++) {
-        printf("%6d   %-15s   %-15s\n", newArray[i]->Number,newArray[i]->firstName,newArray[i]->lastName);
+        printf("%6d   %-15s   %-15s\r\n", newArray[i]->Number,newArray[i]->firstName,newArray[i]->lastName);
     }
 
     //try to open the report file - if it doesn't exist create it
@@ -658,9 +617,9 @@ void sort_employee_by_id(Employee **arrayEmployees, int *totLines ){
         f3 = fopen("SortedEmployeeByIDFile.txt", "wb");
     }
     // set the header in the report file
-    fprintf(f3,"%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####\n");
-    fprintf(f3,"%5s   %-15s   %-15s\n", "Number", "Name","Surname");
-    fprintf(f3,"%5s   %-15s   %-15s\n", "------", "-------------", "--------------");
+    fprintf(f3,"%s\n", "#### ALL EMPLOYEES SORTED BY NAME ####\r\n");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
     // save the sorted array to the file
     for (int l = 0; l < linecount; l++) {
         fprintf(f3, "%6d   %-15s   %-15s", newArray[l]->Number, newArray[l]->firstName, newArray[l]->lastName);
@@ -688,10 +647,6 @@ void sort_employee_by_id(Employee **arrayEmployees, int *totLines ){
  */
 void view_job_information_customer(Job **arrayJobs, int *totLines) {
 
-    int pass; // passes counter
-    int i;
-    int comparison;
-    Job *hold; //temporary location used to swap array elements
     int linecount;
     linecount = *totLines;
     Job **newArray; // new array of Job pointers
@@ -699,49 +654,11 @@ void view_job_information_customer(Job **arrayJobs, int *totLines) {
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job *));  // copy the array
 
-/* loop to control number of passes */
-    for (pass = 1; pass < *totLines; pass++) {
-        /* loop to control number of comparisons per pass */
-        for (i = 0; i < *totLines - 1; i++) {
-            comparison=strcmp(newArray[i]->customer,newArray[i+1]->customer);
-            if (comparison>0) {
-                hold = newArray[i];
-                newArray[i] = newArray[i + 1];
-                newArray[i + 1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
+    newArray=sort_jobs(newArray,linecount,"customer" ); // call the sorting function passing the new array, lines count and parameter to sort on
+
     printf("sorted");
 
-    // Print the header
-    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
-    for (int i = 0; i < *totLines; i++) {
-
-        char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
-        char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
-
-        time_t dueDateString = newArray[i]->dueDate;
-        time_t completedDateString = newArray[i]->completedDate;
-        // check if the date inserted is the default
-        if( (int)dueDateString==83886080){
-            dueDateString2="No date inserted";
-        }
-        else{
-            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-        }
-        // check if the date inserted is the default
-        if((int)completedDateString==83886080){
-            completedDateString2="No date inserted";
-        }
-        else{
-            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-        }
-
-        // print the record
-        printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
-               newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
-    }
+    print_jobs(newArray,linecount);
 
     continue_enter();
 }
@@ -755,10 +672,6 @@ void view_job_information_customer(Job **arrayJobs, int *totLines) {
 
 void view_job_information_by_employee(Job **arrayJobs, int *totLines){
 
-    int pass; // passes counter
-    int i; //comparison counter
-
-    Job *hold; //temporary location used to swap array elements
     int linecount;
     linecount = *totLines;
     Job **newArray; // new array of Job pointers
@@ -766,49 +679,10 @@ void view_job_information_by_employee(Job **arrayJobs, int *totLines){
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines; pass++){
-        /* loop to control number of comparisons per pass */
-        for (i = 0 ; i < *totLines-1; i++){
+    newArray=sort_jobs(newArray,linecount,"EmployeeNumber" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-            if (newArray[i]->EmployeeNumber > newArray[i+1]->EmployeeNumber) {
-                hold = newArray[i];
-                newArray[i]   = newArray[i+1];
-                newArray[i+1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
+    print_jobs(newArray,linecount);
 
-    // print the header
-    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
-
-    for (int i = 0; i < *totLines; i++) {
-
-        char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
-        char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
-
-        time_t dueDateString = newArray[i]->dueDate;
-        time_t completedDateString = newArray[i]->completedDate;
-
-        // check if the date inserted is the default
-        if( (int)dueDateString==83886080){
-            dueDateString2="No date inserted";
-        }
-        else{
-            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-        }
-        // check if the date inserted is the default
-        if((int)completedDateString==83886080){
-            completedDateString2="No date inserted";
-        }
-        else{
-            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-        }
-        // print the record
-        printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
-                   newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
-    }
     continue_enter();
 }
 
@@ -986,65 +860,17 @@ void view_job_information_by_due_date(Job **arrayJobs, int *totLines){
  * *****************************************************/
 
 void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
-    int pass=0; // passes counter
-    int i=0; //
-    int comparison=0;//comparison counter
-    Job *hold; //temporary location used to swap array elements
+
     int linecount = *totLines2;
     Job **newArray;
     newArray = malloc(linecount * sizeof(Job*)); //allocate memory for the new array
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines2; pass++){
-        /* loop to control number of comparisons per pass */
-        for (i = 0 ; i < *totLines2-1; i++){
+    newArray=sort_jobs(newArray,linecount,"customer" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-            comparison=strcmp(newArray[i]->customer,newArray[i+1]->customer);
-            if (comparison>0) {
+    print_jobs(newArray,linecount);
 
-                hold = newArray[i];
-                newArray[i]   = newArray[i+1];
-                newArray[i+1] = hold;
-            } // end if
-        } // end inner for
-    } // end outer for
-
-
-    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
-
-
-    for (int i = 0; i < *totLines2; i++) {
-        char *dueDateString2 = calloc(20, sizeof(char)); //"Apr 20, 2017 @12:00" + NULL
-        char *completedDateString2 = calloc(20, sizeof(char)); //"Thu Apr 20, 2017" + NULL
-
-        time_t dueDateString = newArray[i]->dueDate;
-        time_t completedDateString = newArray[i]->completedDate;
-        //     time(&completedDateString);
-
-        if( (int)dueDateString==83886080){
-            dueDateString2="No date inserted";
-        }
-        else{
-            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-
-        }
-        if((int)completedDateString==83886080){
-            completedDateString2="No date inserted";
-        }
-
-        else{
-            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-        }
-
-
-
-        printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
-               newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
-
-    }
     FILE *f3 = fopen("SortedJobsByCustomer.txt", "w");
     if (f3 == NULL)
     {
@@ -1053,10 +879,10 @@ void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
         f3 = fopen("SortedJobsByCustomer.txt", "wb");
     }
     // Print the header
-    fprintf(f3,"\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-    fprintf(f3,"%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
+    fprintf(f3,"\n%5s%-20s%-5s%-21s%-21s\r\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
+    fprintf(f3,"%5s%-20s%-5s%-21s%-21s\r\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
     for (int i = 0; i < linecount;i++) {
-        fprintf(f3, "%5d  %-20s%-5d  %-21li%-21li\n", newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
+        fprintf(f3, "%5d  %-20s%-5d  %-21li%-21li", newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
         fprintf(f3, "\r\n");
     }
     puts("\nData sorted and saved in SortedJobsByCustomer.txt");
@@ -1072,72 +898,30 @@ void sort_job_information_by_customer(Job **arrayJobs, int *totLines2 ){
  *
  * *****************************************************/
 void sort_job_information_by_date_time_due(Job **arrayJobs, int *totLines2) {
-    int pass=0; // passes counter
-    int i=0; //
 
-    Job *hold; //temporary location used to swap array elements
     int linecount = *totLines2;
     Job **newArray;
     newArray = malloc(linecount * sizeof(Job*)); //allocate memory for the new array
 
     memcpy(newArray, arrayJobs, linecount * sizeof(Job*)); // copy the array
+    newArray=sort_jobs(newArray,linecount,"dueDate" ); // call the sorting function passing the new array, lines count and parameter to sort on
 
-    /* loop to control number of passes */
-    for (pass = 1 ; pass < *totLines2; pass++) {
-        /* loop to control number of comparisons per pass */
-        for (i = 0; i < *totLines2 - 1; i++) {
+    print_jobs(newArray,linecount);
 
-            if (newArray[i]->dueDate > newArray[i + 1]->dueDate) {
-                {
 
-                    hold = newArray[i];
-                    newArray[i] = newArray[i + 1];
-                    newArray[i + 1] = hold;
-                } // end if
-            } // end inner for
-        } // end outer for
-
+    FILE *f3 = fopen("SortedJobsByDueDate.txt", "w");
+    if (f3 == NULL) {
+        printf("Error opening file!\n");
+        printf("The file doesn't exist. Creating it..");
+        f3 = fopen("SortedJobsByDueDate.txt", "wb");
     }
-        printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
-        printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ",
-               "--------------------");
+    // Print the header
+    fprintf(f3,"\n%5s%-20s%-5s%-21s%-21s\r\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
+    fprintf(f3,"%5s%-20s%-5s%-21s%-21s\r\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
 
-
-        for (int i = 0; i < *totLines2; i++) {
-            char *dueDateString2 = calloc(20, sizeof(char)); //"Apr 20, 2017 @12:00" + NULL
-            char *completedDateString2 = calloc(20, sizeof(char)); //"Thu Apr 20, 2017" + NULL
-
-            time_t dueDateString = newArray[i]->dueDate;
-            time_t completedDateString = newArray[i]->completedDate;
-            //     time(&completedDateString);
-
-            if ((int) dueDateString == 83886080) {
-                dueDateString2 = "No date inserted";
-            } else {
-                strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
-
-            }
-            if ((int) completedDateString == 83886080) {
-                completedDateString2 = "No date inserted";
-            } else {
-                strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
-            }
-
-
-            printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
-                   newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
-
-        }
-        FILE *f3 = fopen("SortedJobsByDueDate.txt", "w");
-        if (f3 == NULL) {
-            printf("Error opening file!\n");
-            printf("The file doesn't exist. Creating it..");
-            f3 = fopen("SortedJobsByDueDate.txt", "wb");
-        }
 
         for (int i = 0; i < linecount; i++) {
-            fprintf(f3, "%d %d %s %li %li", newArray[i]->EmployeeNumber, newArray[i]->jobNumber, newArray[i]->customer,
-                    newArray[i]->dueDate, newArray[i]->completedDate);
+            fprintf(f3, "%5d  %-20s%-5d  %-21li%-21li", newArray[i]->jobNumber, newArray[i]->customer, newArray[i]->EmployeeNumber, newArray[i]->dueDate, newArray[i]->completedDate);
             fprintf(f3, "\r\n");
         }
         puts("\nData sorted and saved in SortedJobsByDueDate.txt");
@@ -1238,4 +1022,129 @@ void continue_enter(){
     printf("\n\nPress [Enter] to continue.\n");
     while(getchar()!='\n'); // to clean stdin
     getchar(); // wait for ENTER
+}
+
+// array sort function for Employee
+
+Employee** sort_employees(Employee** arrayToSort,int totLines,char* fieldToSort ){
+    int pass; // passes counter
+    int comparison;
+    Employee *hold; //temporary location used to swap array elements
+
+    /* loop to control number of passes */
+
+    if(fieldToSort=="LastName") {
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                comparison = strcmp(arrayToSort[i]->lastName, arrayToSort[i + 1]->lastName);
+                if (comparison > 0) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
+    if(fieldToSort=="Number"){
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                if (arrayToSort[i]->Number > arrayToSort[i+1]->Number) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
+    // return the sorted array
+    return arrayToSort;
+}
+
+// array sort function for Job
+
+Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
+    int pass; // passes counter
+    int comparison;
+    Job *hold; //temporary location used to swap array elements
+
+    /* loop to control number of passes */
+
+    if(fieldToSort=="customer") {
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                comparison = strcmp(arrayToSort[i]->customer, arrayToSort[i + 1]->customer);
+                if (comparison > 0) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
+    if(fieldToSort=="dueDate"){
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                if (arrayToSort[i]->dueDate > arrayToSort[i+1]->dueDate) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
+    if(fieldToSort=="EmployeeNumber"){
+        for (pass = 1; pass < totLines; pass++) {
+            /* loop to control number of comparisons per pass */
+            for (int i = 0; i < totLines - 1; i++) {
+                if (arrayToSort[i]->EmployeeNumber > arrayToSort[i+1]->EmployeeNumber) {
+
+                    hold = arrayToSort[i];
+                    arrayToSort[i] = arrayToSort[i + 1];
+                    arrayToSort[i + 1] = hold;
+                } // end if
+            } // end inner for
+        } // end outer for
+    }
+    // return the sorted array
+    return arrayToSort;
+}
+
+void print_jobs(Job** newArray,int totLines) {
+    // Print the header
+    printf("\n%5s%-20s%-5s%-21s%-21s\n", "JobID  ", "Customer", "EmpID  ", "Due Date", "Completed Date");
+    printf("%5s%-20s%-5s%-21s%-21s\n", "-----", " -------------------- ", "----- ", "------------------- ", "--------------------");
+    for (int i = 0; i < totLines; i++) {
+
+        char *dueDateString2 = calloc(20, sizeof(char)); // allocate memory for the due date
+        char *completedDateString2 = calloc(20, sizeof(char)); // allocate memory for the completed date
+
+        time_t dueDateString = newArray[i]->dueDate;
+        time_t completedDateString = newArray[i]->completedDate;
+        // check if the date inserted is the default
+        if( (int)dueDateString==83886080){
+            dueDateString2="No date inserted";
+        }
+        else{
+            strftime(dueDateString2, 20, "%b %d, %Y %H:%M", localtime(&dueDateString));
+        }
+        // check if the date inserted is the default
+        if((int)completedDateString==83886080){
+            completedDateString2="No date inserted";
+        }
+        else{
+            strftime(completedDateString2, 20, "%b %d, %Y %H:%M", localtime(&completedDateString));
+        }
+
+        // print the record
+        printf("%5d  %-20s%-5d  %-21s%-21s\n", newArray[i]->jobNumber, newArray[i]->customer,
+               newArray[i]->EmployeeNumber, dueDateString2, completedDateString2);
+    }
 }
