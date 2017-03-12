@@ -367,11 +367,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
 
     int EmployeeNumber;//employee number
     char *customer[25];
-    int day;
-    int month;
-    int year;
-    int minute;
-    int hour;
+    int day, month, year, minute, hour; // to hold the date inserted by the user
     time_t dueDate;         //The job due date
 
     int newtot=*totLines2+1;
@@ -380,8 +376,8 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     // calculate the current time
     struct tm *current;
     time_t timenow;
-    time(&timenow);
-    current = localtime(&timenow);
+    time(&timenow); //the current time in seconds
+    current = localtime(&timenow); // to fill the tm structure1
     int currentmonth = current->tm_mon+1;
     int currentday = current->tm_mday;
     int currentyear = current->tm_year+1900;
@@ -395,7 +391,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     scanf("%s",&customer);
     puts("Insert the due date ");
 
-    puts("Insert the year: ");
+    printf("Insert the year: ");
     scanf(" %d", &year);
     // check that the due year is not less than current year
     while(year<currentyear) {
@@ -403,7 +399,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
         scanf(" %d", &year);
     }
 
-    puts("Insert the month "); // prompt to insert the month
+    printf("Insert the month "); // prompt to insert the month
     scanf(" %d", &month);
     // check that the due month is valid and if the year is the current, that is not less than current month
     while(month>12 || (month<currentmonth && year==currentyear)) {
@@ -415,27 +411,27 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
                     (year % 4 ? 28 : (year % 100 ? 29 : (year % 400 ? 28 : 29))) :
                     ((month - 1) % 7 % 2 ? 30 : 31));
 
-    puts("Insert the day ");
+    printf("Insert the day ");
     scanf(" %d", &day);
     // check that the month is valid and, if month and year and the current, that the day is not less than current
-    while(day>validDay || (month<currentmonth && month==currentmonth && year==currentyear)) {
+    while(day>validDay || (day<currentday && month==currentmonth && year==currentyear)) {
         puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the input file name
         scanf(" %d", &day);
     }
 
-    puts("Insert the hour ");
+    printf("Insert the hour ");
     scanf(" %d", &hour);
 
     // check that the hour is correct and not less than today hour
     while(hour>23 || (hour<currenthour && day==currentday && month==currentmonth && year==currentyear)) {
-        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the input file name
+        puts("The day inserted is not valid. \nInsert the hour "); // prompt to insert the input file name
         scanf(" %d", &hour);
     }
     puts("Insert the minute ");
     scanf(" %d", &minute);
     // check that the minute is correct and not less than current time
     while(minute>59 || (minute<currentminute && hour==currenthour && day==currentday && month==currentmonth && year==currentyear)) {
-        puts("The day inserted is not valid. \nInsert the day "); // prompt to insert the day
+        puts("The day inserted is not valid. \nInsert the minute "); // prompt to insert the day
         scanf(" %d", &minute);
     }
 
@@ -508,8 +504,7 @@ void view_employee(Employee **arrayEmployees, int *totLines){
  */
 void view_employee_by_name(Employee **arrayEmployees, int *totLines) {
 
-    int linecount;
-    linecount = *totLines;
+    int linecount= *totLines;
     Employee **newArray;    // new array of Employees pointers
     newArray = malloc(linecount * sizeof(Employee*)); //allocate memory for the array
 
