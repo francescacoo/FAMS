@@ -650,6 +650,40 @@ void view_job_information_customer(void** arrayData, int *totLines, int *totLine
     continue_enter();
 }
 
+
+void view_job_recently_completed(void** arrayData, int *totLines, int *totLinesEmployees) {
+    Employee **arrayEmployees=arrayData[1];
+    Job **arrayJobs=arrayData[0];
+    int linecount= *totLines; // tot number of jobs
+    char* EmployeeName;
+    Job **newArray; // new array of Job pointers
+    newArray = malloc(linecount * sizeof(Employee *)); // allocate memory for the new array
+
+    memcpy(newArray, arrayJobs, linecount * sizeof(Job *));  // copy the array
+
+    newArray=sort_jobs(newArray,linecount,"customer" ); // call the sorting function passing the new array, lines count and parameter to sort on
+
+    printf("sorted");
+    print_jobs_header();
+    // loop through the array and print all
+
+    time_t timenow;
+    time(&timenow);
+    time_t previousThreeDays;
+    previousThreeDays=timenow-259200;
+
+
+    for (int i = 0; i < linecount; i++) {
+        if(newArray[i]->completedDate>previousThreeDays && newArray[i]->completedDate<timenow ){
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLinesEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
+        print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
+        }
+    }
+    continue_enter();
+}
+
 /* *****************************************************
  *
  * VIEW JOBS OF ORDERED BY EMPLOYEE ----- MENU 8
