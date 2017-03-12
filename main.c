@@ -701,8 +701,10 @@ void view_job_information_by_id(void** arrayData, int *totLines, int *totLineEmp
     for (int i = 0; i < *totLines; i++) {
         // if the id is found print the details of the job
         if(arrayJobs[i]->jobNumber==job_id){
-            tot_found++;
+            tot_found++; // increase tot found counter
+            // get employee name
             EmployeeName=employee_name(arrayEmployees, totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            // print job details
             print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, EmployeeName, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     }
@@ -790,7 +792,9 @@ void view_job_information_by_due_date(void** arrayData, int *totLines, int *totL
         // if the due date is between the minimum and maximum print the details
         if(arrayJobs[i]->dueDate>=minDateSelected && arrayJobs[i]->dueDate<=maxDateSelected){
             tot_found++;
-            EmployeeName=employee_name(arrayEmployees, *totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            // get the employee name
+            EmployeeName=employee_name(arrayEmployees, totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            // print the job details
             print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, EmployeeName, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     }
