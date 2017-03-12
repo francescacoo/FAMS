@@ -999,7 +999,7 @@ char* employee_name(Employee **arrayEmployees, int *totLines, int empNumber){
     char* name;
     int totFound=0;
     // loop through the array
-    for (int i = 0; i < *totLines - 1; i++) {
+    for (int i = 0; i < *totLines; i++) {
         // if the emp number is found
         if(arrayEmployees[i]->Number==empNumber){
             totFound++; // increase counter
