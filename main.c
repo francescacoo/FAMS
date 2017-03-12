@@ -130,14 +130,14 @@ int main() {
 int display_menu() {
     int chosenOption = 0;
     puts("\n#################");
-    puts("###    Menu   ###");
-    puts("#################\n");
+    puts("###    FAMS     ###");
+    puts("#################\n\n");
     //loop until a valid selection is made
     while (chosenOption == 0) {
 
         puts("1. Add an Employee");
         puts("2. Add a job");
-        puts("#####EMPLOYEES######");
+        puts("\n################EMPLOYEES##############");
 
         puts("3. View all employees information");
         puts("4. View all employees sorted by name");
@@ -145,7 +145,7 @@ int display_menu() {
         puts("5. Export employees sorted by name");
         puts("6. Export employees by id");
 
-        puts("#####JOBS######");
+        puts("\n###############JOBS####################");
         puts("7. View all jobs sorted by customer");
         puts("8. View jobs sorted by employee");
 
@@ -597,8 +597,9 @@ void sort_employee_by_id(Employee **arrayEmployees, int *totLines ){
         f3 = fopen("SortedEmployeeByIDFile.txt", "wb");
     }
     // Print the header
-    fprintf(f3,"\n%5s%-20s%-25s%-21s%-21s\r\n", "JobID  ", "Customer", "Employee  ", "Due Date", "Completed Date");
-    fprintf(f3,"%5s%-20s%-25s%-21s%-21s\r\n", "-----", " -------------------- ", "------------------------ ", "------------------- ", "--------------------");
+    fprintf(f3,"%s\n", "#### ALL EMPLOYEES SORTED BY ID ####\r\n");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "Number", "Name","Surname");
+    fprintf(f3,"%5s   %-15s   %-15s\r\n", "------", "-------------", "--------------");
 
     // save the sorted array to the file
     for (int l = 0; l < linecount; l++) {
