@@ -900,6 +900,7 @@ void sort_job_information_by_date_time_due(void** arrayData, int *totLines2, int
         f3 = fopen("SortedJobsByDueDate.txt", "wb");
     }
     // Print the header
+    fprintf(f3,"####### JOBS SORTED BY DATE AND TIME DUE #######\r\n\r\n");
     fprintf(f3,"\n%5s%-20s%-25s%-21s%-21s\r\n", "JobID  ", "Customer", "Employee  ", "Due Date", "Completed Date");
     fprintf(f3,"%5s%-20s%-25s%-21s%-21s\r\n", "-----", " -------------------- ", "------------------------ ", "------------------- ", "--------------------");
 
