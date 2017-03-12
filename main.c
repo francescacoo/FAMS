@@ -936,8 +936,9 @@ void set_job_as_completed(void** arrayData, int *totLines2, int *totLineEmployee
         if (arrayJobs[i]->jobNumber == job_id) {     // if it matches the job ID entered
             tot_found++;                             //increase the counter
             arrayJobs[i]->completedDate = time(NULL);// set completedDate to current time
-            // call the function to print the record
-            EmployeeName=employee_name(arrayEmployees, *totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            // get the employee name
+            EmployeeName=employee_name(arrayEmployees, totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            // print job details
             print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, EmployeeName, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     } //end for loop
