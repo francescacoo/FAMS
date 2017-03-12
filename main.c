@@ -817,6 +817,8 @@ void view_job_information_by_due_date(void** arrayData, int *totLines, int *totL
 /* *****************************************************
  *
  * EXPORT JOB INFORMATION BY CUSTOMER ----- MENU 11
+ * (Exam function 8: sort_job_information_by_customer)
+ *
  *
  * *****************************************************/
 
@@ -835,24 +837,27 @@ void sort_job_information_by_customer(void** arrayData, int *totLines2, int *tot
     print_jobs_header(); // print the header
     //loop through the sorted array and call the print function to print the records
     for (int i = 0; i < linecount; i++) {
-        EmployeeName=employee_name(arrayEmployees, *totLineEmployees, newArray[i]->EmployeeNumber);
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLineEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
         print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
     }
-
+    // open destination file for writing, if it doesn't exist create it
     FILE *f3 = fopen("SortedJobsByCustomer.txt", "w");
-    if (f3 == NULL)
-    {
+    if (f3 == NULL) {
         printf("Error opening file!\n");
         printf("The file doesn't exist. Creating it..");
         f3 = fopen("SortedJobsByCustomer.txt", "wb");
     }
     // Print the header
+    fprintf(f3,"####### JOBS SORTED BY CUSTOMER #######\r\n\r\n");
     fprintf(f3,"\n%5s%-20s%-25s%-21s%-21s\r\n", "JobID  ", "Customer", "Employee  ", "Due Date", "Completed Date");
     fprintf(f3,"%5s%-20s%-25s%-21s%-21s\r\n", "-----", " -------------------- ", "------------------------ ", "------------------- ", "--------------------");
 
     for (int i = 0; i < linecount;i++) {
-
-        EmployeeName=employee_name(arrayEmployees, *totLineEmployees, newArray[i]->EmployeeNumber);
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLineEmployees, newArray[i]->EmployeeNumber);
+        // print job details to file
         print_jobs_file(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate, f3);
     }
     puts("\nData sorted and saved in SortedJobsByCustomer.txt");
@@ -864,7 +869,7 @@ void sort_job_information_by_customer(void** arrayData, int *totLines2, int *tot
  *
  * EXPORT JOB INFORMATION BY DATE AND TIME DUE ----- MENU 12
  *
- * (Exam Function 7 view_job_information_time_due)
+ *
  *
  * *****************************************************/
 
@@ -882,10 +887,12 @@ void sort_job_information_by_date_time_due(void** arrayData, int *totLines2, int
     print_jobs_header(); //print the header
     //loop through the sorted array and call the print function to print the records
     for (int i = 0; i < linecount; i++) {
-        EmployeeName=employee_name(arrayEmployees, *totLineEmployees, newArray[i]->EmployeeNumber);
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLineEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
         print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
     }
-
+    // try to open file for reading, if it doesn't exist create it
     FILE *f3 = fopen("SortedJobsByDueDate.txt", "w");
     if (f3 == NULL) {
         printf("Error opening file!\n");
@@ -897,7 +904,9 @@ void sort_job_information_by_date_time_due(void** arrayData, int *totLines2, int
     fprintf(f3,"%5s%-20s%-25s%-21s%-21s\r\n", "-----", " -------------------- ", "------------------------ ", "------------------- ", "--------------------");
 
     for (int i = 0; i < linecount; i++) {
-        EmployeeName=employee_name(arrayEmployees, *totLineEmployees, newArray[i]->EmployeeNumber);
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLineEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
         print_jobs_file(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate, f3);
     }
     puts("\nData sorted and saved in SortedJobsByDueDate.txt");
