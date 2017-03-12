@@ -962,7 +962,8 @@ void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *t
     FILE *f = fopen("employeeFile.txt", "w");
     if (f == NULL) {
         printf("Error opening file!\n");
-        exit(1);
+        printf("The file doesn't exist. Creating it..");
+        f = fopen("employeeFile.txt", "wb");
     }
     // loop through the array and print the details
     for (int i = 0; i < *totLines; i++) {
@@ -974,7 +975,8 @@ void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *t
     FILE *f2 = fopen("jobFile.txt", "w");
     if (f2 == NULL) {
         printf("Error opening file!\n");
-        exit(1);
+        printf("The file doesn't exist. Creating it..");
+        f2 = fopen("jobFile.txt", "wb");
     }
     // loop through the array and print the details
     for (int i = 0; i < *totLines2; i++) {
@@ -996,15 +998,20 @@ void save_data(Employee **arrayEmployees, int *totLines, Job **arrayJobs, int *t
 char* employee_name(Employee **arrayEmployees, int *totLines, int empNumber){
     char* name;
     int totFound=0;
+    // loop through the array
     for (int i = 0; i < *totLines - 1; i++) {
+        // if the emp number is found
         if(arrayEmployees[i]->Number==empNumber){
-            totFound++;
+            totFound++; // increase counter
+            // allocate memory for the name
             name = calloc(strlen(arrayEmployees[i]->firstName) + strlen(arrayEmployees[i]->lastName)+4, sizeof(char));
+            // copy the first name and append last name
             strcpy(name, arrayEmployees[i]->firstName);
             strcat(name, " ");
             strcat(name, arrayEmployees[i]->lastName);
         }
     }
+    // if the id is not found..
     if(totFound==0){
         calloc(18, sizeof(char));
         name="Employee not found";
@@ -1112,7 +1119,6 @@ Job** sort_jobs(Job** arrayToSort,int totLines,char* fieldToSort ){
 
 // print the header for the jobs
 void print_jobs_header(){
-
     printf("\n%5s%-20s%-25s%-21s%-21s\n", "JobID  ", "Customer", "Employee  ", "Due Date", "Completed Date");
     printf("%5s%-20s%-25s%-21s%-21s\n", "-----", " -------------------- ", "------------------------ ", "------------------- ", "--------------------");
 }
@@ -1121,9 +1127,8 @@ void print_jobs_header(){
 void print_jobs_file(int jobNumber, char* customer, char* EmployeeName, time_t dueDate, time_t completedDate, FILE *f3){
 
     char *dueDateString2;
-    char *completedDateString2; // allocate memory for the completed date
-
-
+    char *completedDateString2;
+    // convert date to human readable
     dueDateString2=convert_date(dueDate);
     completedDateString2=convert_date(completedDate);
 
@@ -1137,8 +1142,7 @@ void print_jobs(int jobNumber, char* customer, char* EmployeeName, time_t dueDat
 
     char *dueDateString2;
     char *completedDateString2; // allocate memory for the completed date
-
-
+    // convert date to human readable format
     dueDateString2=convert_date(dueDate);
     completedDateString2=convert_date(completedDate);
     // print the record
@@ -1146,7 +1150,7 @@ void print_jobs(int jobNumber, char* customer, char* EmployeeName, time_t dueDat
            EmployeeName, dueDateString2, completedDateString2);
 }
 
-// To convert a date in time_t to human readable
+// To convert a date in time_t to human readable format
 char* convert_date(time_t dateToConvert){
     char *dateToConvert2=calloc(20, sizeof(char)); // allocate memory for the date
     if((int)dateToConvert==83886080){
