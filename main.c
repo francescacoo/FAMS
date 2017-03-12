@@ -328,12 +328,11 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
     int newtot=*totLines+1; // new line total
     arrayEmployees=realloc(arrayEmployees,newtot* sizeof(Employee*)); // reallocate memory for the array with one more Employee
 
-    int Number;//employee number
     char firstName[20];//
     char lastName[20];//
 
-    printf("Insert the employee ID :  ");
-    scanf("%d",&Number);
+ //   printf("Insert the employee ID :  ");
+ //   scanf("%d",&Number);
     printf("Insert the employee first name :  ");
     scanf("%s",firstName);
     printf("Insert the employee last name :  ");
@@ -341,7 +340,7 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
 
     arrayEmployees[*totLines] = malloc(sizeof(Employee)); //allocate memory
 
-    arrayEmployees[*totLines]->Number = Number; // copy the Number
+    arrayEmployees[*totLines]->Number = newtot; // set the array max index as Employee Number
 
     arrayEmployees[*totLines]->firstName = calloc(strlen(firstName) + 1, sizeof(char)); // allocate memory for the char
     strcpy(arrayEmployees[*totLines]->firstName, firstName);
