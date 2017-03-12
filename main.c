@@ -628,8 +628,7 @@ void sort_employee_by_id(Employee **arrayEmployees, int *totLines ){
 void view_job_information_customer(void** arrayData, int *totLines, int *totLinesEmployees) {
     Employee **arrayEmployees=arrayData[1];
     Job **arrayJobs=arrayData[0];
-    int linecount;
-    linecount = *totLines;
+    int linecount= *totLines; // tot number of jobs
     char* EmployeeName;
     Job **newArray; // new array of Job pointers
     newArray = malloc(linecount * sizeof(Employee *)); // allocate memory for the new array
@@ -640,6 +639,7 @@ void view_job_information_customer(void** arrayData, int *totLines, int *totLine
 
     printf("sorted");
     print_jobs_header();
+    // loop through the array and print all
     for (int i = 0; i < linecount; i++) {
         EmployeeName=employee_name(arrayEmployees, totLinesEmployees, newArray[i]->EmployeeNumber);
         print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
