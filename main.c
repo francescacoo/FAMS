@@ -331,8 +331,6 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
     char firstName[20];//
     char lastName[20];//
 
- //   printf("Insert the employee ID :  ");
- //   scanf("%d",&Number);
     printf("Insert the employee first name :  ");
     scanf("%s",firstName);
     printf("Insert the employee last name :  ");
@@ -368,8 +366,7 @@ void add_new_employee(Employee **arrayEmployees, int *totLines ){
 void add_new_job(Job **arrayJobs, int *totLines2) {
 
     int EmployeeNumber;//employee number
-    int jobNumber;
-    char *customer;
+    char *customer[25];
     int day;
     int month;
     int year;
@@ -394,8 +391,6 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     // collect input from the user
     printf("Insert the employee number :  ");
     scanf("%d",&EmployeeNumber);
-    printf("Insert the job number :  ");
-    scanf(" %d",&jobNumber);
     printf("Insert the customer :  ");
     scanf("%s",&customer);
     puts("Insert the due date ");
@@ -463,7 +458,7 @@ void add_new_job(Job **arrayJobs, int *totLines2) {
     arrayJobs[*totLines2] = malloc(sizeof(Job));
 
     arrayJobs[*totLines2]->EmployeeNumber = EmployeeNumber;
-    arrayJobs[*totLines2]->jobNumber = jobNumber;
+    arrayJobs[*totLines2]->jobNumber = newtot; // set the job number as the new max array index
 
     arrayJobs[*totLines2]->customer = calloc(strlen(customer) + 1, sizeof(char)); // allocate memory for the string
     strcpy(arrayJobs[*totLines2]->customer, customer);
