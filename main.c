@@ -98,13 +98,13 @@ int main() {
                 view_job_information_by_employee(arrayData, &totLinesJobs, &totLinesEmployees); // search jobs of a selected employee
                 break;
             case 9:
-                view_job_information_by_id(arrayData, &totLinesJobs, totLinesEmployees);   //search a job by id
+                view_job_information_by_id(arrayData, &totLinesJobs, &totLinesEmployees);   //search a job by id
                 break;
             case 10:
-                view_job_information_by_due_date(arrayData, &totLinesJobs, totLinesEmployees); // search jobs due at a selected date
+                view_job_information_by_due_date(arrayData, &totLinesJobs, &totLinesEmployees); // search jobs due at a selected date
                 break;
             case 11:
-                sort_job_information_by_customer(arrayData, &totLinesJobs, totLinesEmployees); // sort jobs by customer and export them to an external file
+                sort_job_information_by_customer(arrayData, &totLinesJobs, &totLinesEmployees); // sort jobs by customer and export them to an external file
                 break;
             case 12:
                 sort_job_information_by_date_time_due(arrayData, &totLinesJobs, &totLinesEmployees);    // sort jobs by due date and export them to an external file
@@ -702,7 +702,7 @@ void view_job_information_by_id(void** arrayData, int *totLines, int *totLineEmp
         // if the id is found print the details of the job
         if(arrayJobs[i]->jobNumber==job_id){
             tot_found++;
-            EmployeeName=employee_name(arrayEmployees, *totLineEmployees, arrayJobs[i]->EmployeeNumber);
+            EmployeeName=employee_name(arrayEmployees, totLineEmployees, arrayJobs[i]->EmployeeNumber);
             print_jobs(arrayJobs[i]->jobNumber, arrayJobs[i]->customer, EmployeeName, arrayJobs[i]->dueDate, arrayJobs[i]->completedDate);
         }
     }
