@@ -641,7 +641,9 @@ void view_job_information_customer(void** arrayData, int *totLines, int *totLine
     print_jobs_header();
     // loop through the array and print all
     for (int i = 0; i < linecount; i++) {
+        // get the employee name
         EmployeeName=employee_name(arrayEmployees, totLinesEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
         print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
     }
     continue_enter();
@@ -658,8 +660,7 @@ void view_job_information_by_employee(void** arrayData, int *totLines, int *totL
     Employee **arrayEmployees=arrayData[1];
     Job **arrayJobs=arrayData[0];
     char* EmployeeName;
-    int linecount;
-    linecount = *totLines;
+    int linecount = *totLines;
     Job **newArray; // new array of Job pointers
     newArray = malloc(linecount * sizeof(Job*)); // allocate memory for the new array
 
@@ -669,7 +670,9 @@ void view_job_information_by_employee(void** arrayData, int *totLines, int *totL
 
     print_jobs_header();
     for (int i = 0; i < linecount; i++) {
-        EmployeeName=employee_name(arrayEmployees, *totLineEmployees, newArray[i]->EmployeeNumber);
+        // get the employee name
+        EmployeeName=employee_name(arrayEmployees, totLineEmployees, newArray[i]->EmployeeNumber);
+        // print the job details
         print_jobs(newArray[i]->jobNumber, newArray[i]->customer, EmployeeName, newArray[i]->dueDate, newArray[i]->completedDate);
     }
 
